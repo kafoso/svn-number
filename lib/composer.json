@@ -1,0 +1,11 @@
+{
+    "name": "kafoso/svn-number",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kasper Søfren",
+            "email": "soefritz@gmail.com"
+        }
+    ],
+    "require": {},
+}
