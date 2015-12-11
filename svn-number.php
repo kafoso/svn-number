@@ -33,13 +33,14 @@ try {
         } else {
             exit($diff->getOutputAll());
         }
-    } else if (in_array($svnNumber->getCommand(), array("revert", "resolve"))) {
+    } else if (in_array($svnNumber->getCommand(), array("add", "resolve", "revert"))) {
         if ($svnNumber->hasRequestedNumbers()) {
             $status = $svnNumber->getStatus();
             $allLinesInformations = $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers());
             foreach ($allLinesInformations as $number => $lineInformation) {
                 $svnNumber->exec(sprintf(
-                    "svn revert %s %s",
+                    "svn %s %s %s",
+                    $svnNumber->getCommand(),
                     $lineInformation["filePath"],
                     $svnNumber->getAdditionalArgsStr()
                 ));
