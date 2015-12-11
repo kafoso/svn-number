@@ -2,8 +2,11 @@
 <?php
 use Kafoso\SvnNumber;
 
-$loader = require(__DIR__ . "/lib/vendor/autoload.php");
-$loader->addClassMap(require(__DIR__ . "/lib/autoload_classmap.php"));
+define("BASE_DIR", readlink(dirname(__FILE__)));
+
+$loader = require(BASE_DIR . "/lib/vendor/autoload.php");
+$loader->addClassMap(require(BASE_DIR . "/lib/autoload_classmap.php"));
+
 
 $svnNumber = new SvnNumber($argv);
 if (false == $svnNumber->hasCommand()) {
@@ -11,27 +14,31 @@ if (false == $svnNumber->hasCommand()) {
     exit;
 }
 
-if (in_array($svnNumber->getCommand(), ["st", "status"])) {
+if (in_array($svnNumber->getCommand(), array("st", "status"))) {
     $status = $svnNumber->getStatus();
     if ($svnNumber->hasRequestedNumber()) {
         exit($status->getOutput($svnNumber->getRequestedNumber()));
     } else {
         exit($status->getOutput(null));
     }
-} else if (in_array($svnNumber->getCommand(), ["di", "diff"])) {
+} else if (in_array($svnNumber->getCommand(), array("di", "diff"))) {
     $diff = $svnNumber->getDiff();
     if ($svnNumber->hasRequestedNumber()) {
         $status = $svnNumber->getStatus();
-        $filePath = $status->getReferencedFileFromNumber($svnNumber->getRequestedNumber());
-        exit($status->getOutputForFile($filePath));
+        $lineInformation = $status->getLineInformationFromFileNumber($svnNumber->getRequestedNumber());
+        if ($lineInformation) {
+            exit($diff->getOutputForFile($lineInformation));
+        } else {
+            exit("No file found for number: " . $svnNumber->getRequestedNumber());
+        }
     } else {
-        exit($diff->getOutpuAll());
+        exit($diff->getOutputAll());
     }
 }
 
 $svnNumber->exec(sprintf(
     "svn %s %s",
     $svnNumber->getCommand(),
-    implode(" ", $svnNumber->getAdditionalArgs())
+    $svnNumber->getAdditionalArgsStr()
 ));
 exit;

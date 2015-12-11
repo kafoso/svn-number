@@ -8,8 +8,9 @@ class SvnNumber {
     protected $requestedNumber;
     protected $svnCommand;
     protected $additionalArgs = array();
+
+    protected $diff;
     protected $status;
-    protected $numberedLinesArray;
 
     public function __construct($args){
         foreach (array_slice($args, 1, 2) as $arg) {
@@ -19,15 +20,23 @@ class SvnNumber {
                 $this->svnCommand = $arg;
             }
         }
-        $this->additionalArgs = array_slice($args, 3);
+        if ($this->requestedNumber) {
+            $this->additionalArgs = array_slice($args, 3);
+        } else {
+            $this->additionalArgs = array_slice($args, 2);
+        }
     }
 
     public function exec($cmd){
-        exit($cmd);
+        exec($cmd);
     }
 
     public function getAdditionalArgs(){
         return $this->additionalArgs;
+    }
+
+    public function getAdditionalArgsStr(){
+        return implode(" ", $this->additionalArgs);
     }
 
     public function getCommand(){
@@ -35,7 +44,10 @@ class SvnNumber {
     }
 
     public function getDiff(){
-        return new Diff($this);
+        if (!$this->diff) {
+            $this->diff = new Diff($this);
+        }
+        return $this->diff;
     }
 
     public function getRequestedNumber(){

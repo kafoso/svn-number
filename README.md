@@ -36,3 +36,7 @@ This library was inspired by:
 
 - It's `git` equivalent: `git-number` (https://github.com/holygeek/git-number)
 - `svn-color` (https://github.com/philchristensen/svn-color)
+
+# TODO
+
+- `svn merge`

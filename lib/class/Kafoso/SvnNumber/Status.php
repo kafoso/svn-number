@@ -25,7 +25,10 @@ class Status {
     );
 
     public function __construct(){
-        $this->svnStatus = trim("
+        exec("svn st", $output);
+        $this->svnStatus = $output;
+        /*
+        $this->svnStatus = preg_split("/\n|\r\n?/", trim("
             some message here
             ewrwer
 
@@ -41,16 +44,18 @@ class Status {
 
             werwe
             dgs
-        "); // TODO
+        ")); // TODO
+        */
         $this->statusTypesRegex = implode("|",array_map("preg_quote", array_keys($this->statusTypes)));
         $this->statusTypesRegex = "^({$this->statusTypesRegex})\s+(.+)$";
     }
 
     public function getOutput($requestedNumber){
         $bashStyling = new BashStyling;
-        $statusLines = explode(PHP_EOL, $this->svnStatus);
+        $statusLines = $this->svnStatus;
         $fileNumber = 1;
-        foreach ($statusLines as &$line) {
+        $outputLines = array();
+        foreach ($statusLines as $line) {
             if (preg_match("/{$this->statusTypesRegex}/i", trim($line), $match)) {
                 if (is_int($requestedNumber) && $requestedNumber != $fileNumber) {
                     $line = "";
@@ -58,67 +63,74 @@ class Status {
                     continue;
                 }
                 $line = trim($line);
-                $replacedLine = "  " . $bashStyling->bold(231, str_pad($fileNumber, 4)) . " ";
+                $replacedLine = "  " . $bashStyling->bold(str_pad($fileNumber, 4), 231) . " ";
                 $padding = str_repeat(" ", substr_count(str_pad($match[1], 5), " "));
                 $filePath = str_replace("\\", "/", $match[2]);
                 switch (strtoupper($match[1])) {
                     case "A":
                     case "A+":
                         $color = 40;
-                        $replacedLine .= $bashStyling->bold($color, $match[1]) . $padding
-                            . $bashStyling->normal($color, $filePath);
+                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
+                            . $bashStyling->normal($filePath, $color);
                         break;
                     case "C":
                     case "!":
                         $color = 208;
-                        $replacedLine .= $bashStyling->bold($color, $match[1]) . $padding
-                            . $bashStyling->normal($color, $filePath);
+                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
+                            . $bashStyling->normal($filePath, $color);
                         break;
                     case "D":
                         $color = 160;
-                        $replacedLine .= $bashStyling->bold($color, $match[1]) . $padding
-                            . $bashStyling->normal($color, $filePath);
+                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
+                            . $bashStyling->normal($filePath, $color);
                         break;
                     case "E":
                     case "I":
                     case "X":
                     case "?":
                         $color = 242;
-                        $replacedLine .= $bashStyling->bold($color, $match[1]) . $padding
-                            . $bashStyling->normal($color, $filePath);
+                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
+                            . $bashStyling->normal($filePath, $color);
                         break;
                     case "L":
                         $color = 226;
-                        $replacedLine .= $bashStyling->bold($color, $match[1]) . $padding
-                            . $bashStyling->normal($color, $filePath);
+                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
+                            . $bashStyling->normal($filePath, $color);
                         break;
                     case "M":
                     case "R":
                         $color = 33;
-                        $replacedLine .= $bashStyling->bold($color, $match[1]) . $padding
-                            . $bashStyling->normal($color, $filePath);
+                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
+                            . $bashStyling->normal($filePath, $color);
                         break;
                     default:
                         $color = 231;
-                        $replacedLine .= $bashStyling->bold($color, $match[1]) . $padding . $filePath;
+                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding . $filePath;
                         break;
                 }
-                $line = $replacedLine;
+                $outputLines[] = $replacedLine;
                 $fileNumber++;
+            } else {
+                $outputLines[] = $line;
             }
         }
-        exit(trim(implode(PHP_EOL, array_filter($statusLines))));
+        if ($outputLines) {
+            array_unshift($outputLines, "");
+            $outputLines[] = "";
+        }
+        return implode(PHP_EOL, $outputLines);
     }
 
     public function getNumberedLinesArray(){
         if (!$this->numberedLinesArray) {
             $this->numberedLinesArray = array();
+            $statusLines = $this->svnStatus;
             $fileNumber = 1;
             foreach ($statusLines as $line) {
                 if (preg_match("/{$this->statusTypesRegex}/i", trim($line), $match)) {
                     $this->numberedLinesArray[$fileNumber] = array(
                         "statusType" => $match[1],
-                        "filePath" => $match[2],
+                        "filePath" =>  str_replace("\\", "/", $match[2]),
                     );
                     $fileNumber++;
                 }
@@ -127,7 +139,7 @@ class Status {
         return $this->numberedLinesArray;
     }
 
-    public function getReferencedFileFromNumber($number){
+    public function getLineInformationFromFileNumber($number){
         $numberedLinesArray = $this->getNumberedLinesArray();
         if (array_key_exists($number, $numberedLinesArray)) {
             return $numberedLinesArray[$number];
