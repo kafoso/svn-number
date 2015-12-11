@@ -22,13 +22,13 @@ class Status {
         "R" => "Item has been replaced in your working copy. This means the file was scheduled for deletion, and then a new file with the same name was scheduled for addition in its place.",
         "L" => "Item is locked",
         "E" => "Item existed, as it would have been created, by an svn update.",
+        "> moved" => "Item was moved"
     );
 
     public function __construct(){
         exec("svn st", $output);
         $this->svnStatus = $output;
-        $this->statusTypesRegex = implode("|",array_map("preg_quote", array_keys($this->statusTypes)));
-        $this->statusTypesRegex = "^({$this->statusTypesRegex})\s+(.+)$";
+        $this->statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D|S|I|X|~|R|L|E)\s+(.+)$/i';
     }
 
     public function getOutput(array $requestedNumbers = null){
@@ -38,7 +38,7 @@ class Status {
         $outputLines = array();
         $maxColumns = $bashStyling->getMaxTerminalColumns();
         foreach ($statusLines as $line) {
-            if (preg_match("/{$this->statusTypesRegex}/i", trim($line), $match)) {
+            if (preg_match($this->statusTypesRegex, trim($line), $match)) {
                 if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
                     $line = "";
                     $fileNumber++;
@@ -56,7 +56,9 @@ class Status {
                     $backgroundColor
                 );
                 $filePath = str_pad(str_replace("\\", "/", $match[2]), min(128, $maxColumns));
-                switch (strtoupper($match[1])) {
+                switch (preg_replace('/\s+/', ' ', strtoupper($match[1]))) {
+                    case "A +":
+                        $match[1] = "A+";
                     case "A":
                     case "A+":
                         $color = 40;
@@ -78,7 +80,7 @@ class Status {
                     case "I":
                     case "X":
                     case "?":
-                        $color = 242;
+                        $color = 246;
                         $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
                             . $bashStyling->normal($filePath, $color, $backgroundColor);
                         break;
@@ -100,8 +102,19 @@ class Status {
                 }
                 $outputLines[] = $replacedLine;
                 $fileNumber++;
+            } else if (preg_match('/\>\s+moved/', ltrim($line))) {
+                $line = str_repeat(" ", 13) . ltrim($line);
+                $outputLines[] = $bashStyling->normal(
+                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns) + 12),
+                    231,
+                    $backgroundColor
+                );
             } else {
-                $outputLines[] = $line;
+                $outputLines[] = $bashStyling->normal(
+                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns) + 12),
+                    231,
+                    $backgroundColor
+                );
             }
         }
         if ($outputLines) {
@@ -117,7 +130,7 @@ class Status {
             $statusLines = $this->svnStatus;
             $fileNumber = 1;
             foreach ($statusLines as $line) {
-                if (preg_match("/{$this->statusTypesRegex}/i", trim($line), $match)) {
+                if (preg_match($this->statusTypesRegex, trim($line), $match)) {
                     $this->numberedLinesArray[$fileNumber] = array(
                         "statusType" => $match[1],
                         "filePath" =>  str_replace("\\", "/", $match[2]),

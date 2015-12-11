@@ -33,7 +33,19 @@ try {
         } else {
             exit($diff->getOutputAll());
         }
-    } else if (in_array($svnNumber->getCommand(), array("add", "resolve", "revert"))) {
+    } else if (in_array($svnNumber->getCommand(), array(
+        "add",
+        "ann",
+        "annotate",
+        "blame",
+        "del",
+        "delete",
+        "praise",
+        "remove",
+        "resolve",
+        "revert",
+        "rm"
+        ))) {
         if ($svnNumber->hasRequestedNumbers()) {
             $status = $svnNumber->getStatus();
             $allLinesInformations = $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers());

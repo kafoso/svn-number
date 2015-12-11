@@ -45,13 +45,20 @@ class SvnNumber {
                 }
                 $this->requestedNumbers = array_unique($numbers);
             } else {
-                $this->svnCommand = $arg;
+                $this->svnCommand = $args[1];
             }
         }
         if ($this->requestedNumbers) {
             $this->additionalArgs = array_slice($args, 3);
         } else {
+            $this->svnCommand = $args[1];
             $this->additionalArgs = array_slice($args, 2);
+        }
+        if (!$this->svnCommand) {
+            throw new \RuntimeException(sprintf(
+                "'%s' is not defined! \"Tremble, mortals, and despair! Doom has come to this world!\"",
+                '$this->svnCommand'
+            ));
         }
     }
 

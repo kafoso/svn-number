@@ -33,9 +33,9 @@ class Diff {
             '/^\=+$/' => array(242, null),
             '/^\+\+\+\s+/' => array(40, null),
             '/^---\s+/' => array(160, null),
-            '/^\+(\s*)$/' => array(40, null),
-            '/^-(\s+|$)/' => array(160, null),
-            '/^@+\s+/' => array(33, null),
+            '/^\+/' => array(40, null),
+            '/^-/' => array(160, null),
+            '/^@@\s+/' => array(33, null),
         );
         $bashStyling = new BashStyling;
         foreach ($svnDiff as &$line) {
