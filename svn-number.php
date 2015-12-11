@@ -49,12 +49,12 @@ try {
         }
     }
 
-    $svnNumber->exec(sprintf(
+    $output = $svnNumber->exec(sprintf(
         "svn %s %s",
         $svnNumber->getCommand(),
         $svnNumber->getAdditionalArgsStr()
     ));
-    exit;
+    exit(implode(PHP_EOL, $output));
 } catch (\Exception $e) {
     $message = implode(PHP_EOL, array_map(function($v){
         return str_repeat(" ", 4) . $v;
