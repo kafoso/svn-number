@@ -27,37 +27,18 @@ class Status {
     public function __construct(){
         exec("svn st", $output);
         $this->svnStatus = $output;
-        /*
-        $this->svnStatus = preg_split("/\n|\r\n?/", trim("
-            some message here
-            ewrwer
-
-            A       hat.txt
-            A+       hat.txt
-            C       www/foo/bar.txt
-            M       www/foo/baz.txt
-            D       www/foo/bim.txt
-            E       www\\foo\\bim.txt
-            L       www/foo/bim.txt
-            ?       www/foo/bim.txt
-            !       www/foo/bim.txt
-
-            werwe
-            dgs
-        ")); // TODO
-        */
         $this->statusTypesRegex = implode("|",array_map("preg_quote", array_keys($this->statusTypes)));
         $this->statusTypesRegex = "^({$this->statusTypesRegex})\s+(.+)$";
     }
 
-    public function getOutput($requestedNumber){
+    public function getOutput(array $requestedNumbers = null){
         $bashStyling = new BashStyling;
         $statusLines = $this->svnStatus;
         $fileNumber = 1;
         $outputLines = array();
         foreach ($statusLines as $line) {
             if (preg_match("/{$this->statusTypesRegex}/i", trim($line), $match)) {
-                if (is_int($requestedNumber) && $requestedNumber != $fileNumber) {
+                if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
                     $line = "";
                     $fileNumber++;
                     continue;
@@ -139,12 +120,18 @@ class Status {
         return $this->numberedLinesArray;
     }
 
-    public function getLineInformationFromFileNumber($number){
-        $numberedLinesArray = $this->getNumberedLinesArray();
-        if (array_key_exists($number, $numberedLinesArray)) {
-            return $numberedLinesArray[$number];
+    public function getLineInformationFromFileNumbers(array $numbers){
+        $intersection = array_intersect_key(
+            $this->getNumberedLinesArray(),
+            array_flip($numbers)
+        );
+        if ($intersection) {
+            return $intersection;
         }
-        return null;
+        throw new \RuntimeException(sprintf(
+            "No line exists for numbers: [%s]",
+            implode(",", $numbers)
+        ));
     }
 
     public function getStatusTypes(){

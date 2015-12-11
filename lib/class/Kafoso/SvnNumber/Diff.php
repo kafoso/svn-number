@@ -10,14 +10,20 @@ class Diff {
         $this->svnNumber = $svnNumber;
     }
 
-    public function getOutputForFile($lineInformationer) {
-        $cmd = "svn di " . $lineInformationer["filePath"] . " " . $this->svnNumber->getAdditionalArgsStr();
-        exec($cmd, $output);
-        return implode(PHP_EOL, $this->stylize($output));
+    public function getOutputForFilePaths(array $filePaths) {
+        $diff = array();
+        foreach ($filePaths as $filePath) {
+            $cmd = "svn di " . $filePath . " " . $this->svnNumber->getAdditionalArgsStr();
+            $output = "";
+            exec($cmd, $output);
+            $diff[] = implode(PHP_EOL, $this->stylize($output));
+        }
+        return implode(PHP_EOL, $diff);
     }
 
     public function getOutputAll(){
         $cmd = "svn di " . $this->svnNumber->getAdditionalArgsStr();
+        $output = "";
         exec($cmd, $output);
         return implode(PHP_EOL, $this->stylize($output));
     }
@@ -39,6 +45,9 @@ class Diff {
                     $line = $bashStyling->normal($line, $foreground, $background);
                     break;
                 }
+            }
+            if (preg_match('/^Index: /', ltrim($line))) {
+                $line = PHP_EOL . $bashStyling->normal($line, 226);
             }
         }
         return $svnDiff;

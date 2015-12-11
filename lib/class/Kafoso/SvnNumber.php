@@ -3,9 +3,10 @@ namespace Kafoso;
 
 use Kafoso\SvnNumber\Diff;
 use Kafoso\SvnNumber\Status;
+use Kafoso\SvnNumber\NumberHandler;
 
 class SvnNumber {
-    protected $requestedNumber;
+    protected $requestedNumbers = array();
     protected $svnCommand;
     protected $additionalArgs = array();
 
@@ -14,13 +15,40 @@ class SvnNumber {
 
     public function __construct($args){
         foreach (array_slice($args, 1, 2) as $arg) {
-            if (preg_match("/^\d+$/", $arg)) {
-                $this->requestedNumber = intval($arg);
+            if (preg_match("/^\d+[,-\d]*?$/", $arg)) {
+                $numbers = array();
+                $exceptions = array();
+                $chunks = explode(",", $arg);
+                $numberHandler = new NumberHandler;
+                foreach ($chunks as $chunk) {
+                    try {
+                        if (preg_match("/^(\d)+-(\d+)$/", $chunk)) {
+                            $rangeArray = $numberHandler->stringRangeToArray($chunk);
+                            $numbers = array_merge(
+                                $numbers,
+                                $rangeArray
+                            );
+                        } else if (preg_match("/^\d+$/", $chunk)) {
+                            $numbers[] = $numberHandler->stringToInteger($chunk);
+                        } else {
+                            $exceptions[] = sprintf(
+                                "Invalid value: [%s]",
+                                $chunk
+                            );
+                        }
+                    } catch (\Exception $e) {
+                        $exceptions[] = $e->getMessage();
+                    }
+                }
+                if ($exceptions) {
+                    throw new \InvalidArgumentException(implode(PHP_EOL, $exceptions));
+                }
+                $this->requestedNumbers = array_unique($numbers);
             } else {
                 $this->svnCommand = $arg;
             }
         }
-        if ($this->requestedNumber) {
+        if ($this->requestedNumbers) {
             $this->additionalArgs = array_slice($args, 3);
         } else {
             $this->additionalArgs = array_slice($args, 2);
@@ -28,7 +56,10 @@ class SvnNumber {
     }
 
     public function exec($cmd){
-        exec($cmd);
+        echo $cmd . PHP_EOL;
+        $output = "";
+        exec($cmd, $output);
+        return $output;
     }
 
     public function getAdditionalArgs(){
@@ -50,8 +81,8 @@ class SvnNumber {
         return $this->diff;
     }
 
-    public function getRequestedNumber(){
-        return $this->requestedNumber;
+    public function getRequestedNumbers(){
+        return $this->requestedNumbers;
     }
 
     public function getStatus(){
@@ -65,7 +96,7 @@ class SvnNumber {
         return false == empty($this->svnCommand);
     }
 
-    public function hasRequestedNumber(){
-        return is_int($this->requestedNumber);
+    public function hasRequestedNumbers(){
+        return sizeof($this->requestedNumbers) > 0;
     }
 }
