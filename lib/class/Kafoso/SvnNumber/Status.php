@@ -36,6 +36,7 @@ class Status {
         $statusLines = $this->svnStatus;
         $fileNumber = 1;
         $outputLines = array();
+        $maxColumns = $bashStyling->getMaxTerminalColumns();
         foreach ($statusLines as $line) {
             if (preg_match("/{$this->statusTypesRegex}/i", trim($line), $match)) {
                 if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
@@ -43,50 +44,58 @@ class Status {
                     $fileNumber++;
                     continue;
                 }
+                $backgroundColor = null;
+                if ($fileNumber%2 == 0) {
+                    $backgroundColor = 234;
+                }
                 $line = trim($line);
-                $replacedLine = "  " . $bashStyling->bold(str_pad($fileNumber, 4), 231) . " ";
-                $padding = str_repeat(" ", substr_count(str_pad($match[1], 5), " "));
-                $filePath = str_replace("\\", "/", $match[2]);
+                $replacedLine = $bashStyling->bold(" " . str_pad($fileNumber, 4, " ", STR_PAD_LEFT) . "  ", 231, $backgroundColor);
+                $padding = $bashStyling->normal(
+                    str_repeat(" ", substr_count(str_pad($match[1], 5), " ")),
+                    null,
+                    $backgroundColor
+                );
+                $filePath = str_pad(str_replace("\\", "/", $match[2]), min(128, $maxColumns));
                 switch (strtoupper($match[1])) {
                     case "A":
                     case "A+":
                         $color = 40;
-                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
-                            . $bashStyling->normal($filePath, $color);
+                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
+                            . $bashStyling->normal($filePath, $color, $backgroundColor);
                         break;
                     case "C":
                     case "!":
                         $color = 208;
-                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
-                            . $bashStyling->normal($filePath, $color);
+                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
+                            . $bashStyling->normal($filePath, $color, $backgroundColor);
                         break;
                     case "D":
                         $color = 160;
-                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
-                            . $bashStyling->normal($filePath, $color);
+                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
+                            . $bashStyling->normal($filePath, $color, $backgroundColor);
                         break;
                     case "E":
                     case "I":
                     case "X":
                     case "?":
                         $color = 242;
-                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
-                            . $bashStyling->normal($filePath, $color);
+                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
+                            . $bashStyling->normal($filePath, $color, $backgroundColor);
                         break;
                     case "L":
                         $color = 226;
-                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
-                            . $bashStyling->normal($filePath, $color);
+                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
+                            . $bashStyling->normal($filePath, $color, $backgroundColor);
                         break;
                     case "M":
                     case "R":
                         $color = 33;
-                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding
-                            . $bashStyling->normal($filePath, $color);
+                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
+                            . $bashStyling->normal($filePath, $color, $backgroundColor);
                         break;
                     default:
                         $color = 231;
-                        $replacedLine .= $bashStyling->bold($match[1], $color) . $padding . $filePath;
+                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding . $filePath;
                         break;
                 }
                 $outputLines[] = $replacedLine;
