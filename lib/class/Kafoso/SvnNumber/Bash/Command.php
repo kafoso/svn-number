@@ -9,7 +9,7 @@ class Command {
         }
         throw new \RuntimeException(sprintf(
             "Shell command error: %s",
-            $output
+            implode(PHP_EOL, $output)
         ));
     }
 }
