@@ -50,7 +50,7 @@ class SvnNumberTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame("-x --ignore-whitespace", $svnNumber->getAdditionalArgsStr());
     }
 
-    public function getBashCommandMock(){
+    protected function getBashCommandMock(){
         return $this->getMock('Kafoso\SvnNumber\Bash\Command', array("exec"));
     }
 }
