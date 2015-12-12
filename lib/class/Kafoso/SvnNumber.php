@@ -2,8 +2,8 @@
 namespace Kafoso;
 
 use Kafoso\SvnNumber\Bash\Command as BashCommand;
-use Kafoso\SvnNumber\SvnCommand\Diff;
-use Kafoso\SvnNumber\SvnCommand\Status;
+use Kafoso\SvnNumber\SvnAction\Diff;
+use Kafoso\SvnNumber\SvnAction\Status;
 use Kafoso\SvnNumber\Argument\NumberNegotiator;
 
 class SvnNumber {
