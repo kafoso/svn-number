@@ -39,7 +39,7 @@ class Status extends AbstractSvnAction {
         $statusLines = $this->svnStatus;
         $fileNumber = 1;
         $outputLines = array();
-        $maxColumns = $bashStyling->getMaxTerminalColumns();
+        $maxColumns = $this->svnNumber->getBashCommand()->getMaxTerminalColumns() - 12;
         foreach ($statusLines as $line) {
             if ($match = $this->validateLine($line)) {
                 if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
@@ -52,13 +52,18 @@ class Status extends AbstractSvnAction {
                     $backgroundColor = 234;
                 }
                 $line = trim($line);
-                $replacedLine = $bashStyling->bold(" " . str_pad($fileNumber, 4, " ", STR_PAD_LEFT) . "  ", 231, $backgroundColor);
+                $replacedLine = $bashStyling->bold(
+                    " " . str_pad($fileNumber, 4, " ", STR_PAD_LEFT) . "  ",
+                    231,
+                    $backgroundColor
+                );
                 $padding = $bashStyling->normal(
                     str_repeat(" ", substr_count(str_pad($match[1], 5), " ")),
                     null,
-                    $backgroundColor
+                    $backgroundColor,
+                    true
                 );
-                $filePath = str_pad(str_replace("\\", "/", $match[2]), min(128, $maxColumns));
+                $filePath = str_pad(str_replace("\\", "/", $match[2]), min(128-12, $maxColumns));
                 switch (preg_replace('/\s+/', ' ', strtoupper($match[1]))) {
                     case "A +":
                         $match[1] = "A+";
@@ -103,7 +108,7 @@ class Status extends AbstractSvnAction {
                         $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding . $filePath;
                         break;
                 }
-                $outputLines[] = $replacedLine;
+                $outputLines[] = $bashStyling->escape($replacedLine);
                 $fileNumber++;
             } else if (preg_match('/\>\s+moved/', ltrim($line))) {
                 $line = str_repeat(" ", 13) . ltrim($line);
@@ -154,7 +159,7 @@ class Status extends AbstractSvnAction {
         if ($intersection) {
             return $intersection;
         }
-        throw new \RuntimeException(sprintf(
+        throw new \InvalidArgumentException(sprintf(
             "No line exists for numbers: [%s]",
             implode(",", $numbers)
         ));

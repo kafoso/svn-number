@@ -12,4 +12,12 @@ class Command {
             implode(PHP_EOL, $output)
         ));
     }
+
+    public function getMaxTerminalColumns(){
+        $out = $this->exec("tput cols");
+        if (is_array($out)) {
+            return intval($out[0]);
+        }
+        return 0;
+    }
 }

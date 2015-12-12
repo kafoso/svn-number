@@ -1,54 +1,52 @@
 <?php
 namespace Kafoso\SvnNumber\Bash;
 
-use Kafoso\SvnNumber\Bash\Command as BashCommand;
-
+/**
+ * Colorization and styling of textual terminal output.
+ * Inspiration: http://unix.stackexchange.com/questions/124407/what-color-codes-can-i-use-in-my-ps1-prompt
+ */
 class Styling {
-    const DEFAULT_FOREGROUND_COLOR = 231;
+    const BOLD = "\33[1m";
+    const DEFAULT_FOREGROUND_COLOR = 253;
+    const ESCAPE = "\33[0m";
+    const FOREGROUND_COLOR_PATTERN = "\33[38;5;%FOREGROUND_COLOR%m";
+    const BACKGROUND_COLOR_PATTERN = "\33[48;5;%BACKGROUND_COLOR%m";
 
-    protected $bashCommand;
-
-    public function __construct(BashCommand $bashCommand){
-        $this->bashCommand = $bashCommand;
-    }
-
-    /**
-     * Inspiration: http://unix.stackexchange.com/questions/124407/what-color-codes-can-i-use-in-my-ps1-prompt
-     */
-    public function normal($str, $foregroundColor = null, $backgroundColor = null){
+    public function normal($str, $foregroundColor = null, $backgroundColor = null, $escape = false){
         if (is_null($foregroundColor)) {
             $foregroundColor = self::DEFAULT_FOREGROUND_COLOR;
         }
-        return $this->constructColorSequence($foregroundColor, $backgroundColor) . "{$str}\33[0m";
+        $output = $this->constructColorSequence($foregroundColor, $backgroundColor) . $str;
+        if ($escape) {
+            $output .= self::ESCAPE;
+        }
+        return $output;
     }
 
-    public function bold($str, $foregroundColor = null, $backgroundColor = null){
+    public function bold($str, $foregroundColor = null, $backgroundColor = null, $escape = false){
         if (is_null($foregroundColor)) {
             $foregroundColor = self::DEFAULT_FOREGROUND_COLOR;
         }
-        return "\33[1m" . $this->constructColorSequence($foregroundColor, $backgroundColor) . "{$str}\33[0m";
+            return self::BOLD . $this->normal($str, $foregroundColor, $backgroundColor, $escape);
     }
 
-    public function getMaxTerminalColumns(){
-        $out = $this->bashCommand->exec("tput cols");
-        if (is_array($out)) {
-            return intval($out[0]);
-        }
-        return 0;
+    public function escape($str){
+        return $str . self::ESCAPE;
     }
 
     protected function constructColorSequence($foregroundColor, $backgroundColor = null) {
         $sequence = "";
         if ($backgroundColor) {
-            $sequence .= sprintf(
-                "\33[48;5;%sm",
-                $backgroundColor
+            $sequence .= str_replace(
+                "%BACKGROUND_COLOR%",
+                $backgroundColor,
+                self::BACKGROUND_COLOR_PATTERN
             );
         }
-        return sprintf(
-            "%s\33[38;5;%sm",
-            $sequence,
-            $foregroundColor
+        return $sequence . str_replace(
+            "%FOREGROUND_COLOR%",
+            $foregroundColor,
+            self::FOREGROUND_COLOR_PATTERN
         );
     }
 }
