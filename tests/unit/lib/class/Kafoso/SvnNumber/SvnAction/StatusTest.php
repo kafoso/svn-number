@@ -11,7 +11,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($expected, $status->getSvnStatus());
     }
 
-    public function testThatOutputIsAsExpected(){
+    public function testThatOutputIsAsExpectedForAll(){
         $status = new Status($this->getSvnNumberMock());
         $expectedArray = array(
             "\33[1m\33[38;5;231m    1  \33[1m\33[38;5;40mA\33[38;5;253m    \33[0m\33[38;5;40mfoo/bar.txt         \33[0m",
@@ -20,9 +20,22 @@ class StatusTest extends \PHPUnit_Framework_TestCase {
         $expected = trim(implode(PHP_EOL, $expectedArray));
         $this->assertSame(
             str_replace("\33", "@", $expected), // To make it readable in terminal
-            str_replace("\33", "@", trim($status->getOutput(array(1,2))))
+            str_replace("\33", "@", trim($status->getOutput()))
         );
-        $this->assertSame($expected, trim($status->getOutput(array(1,2))));
+        $this->assertSame($expected, trim($status->getOutput()));
+    }
+
+    public function testThatOutputIsAsExpectedForAFiniteNumberOfFiles(){
+        $status = new Status($this->getSvnNumberMock());
+        $expectedArray = array(
+            "\33[1m\33[38;5;231m    1  \33[1m\33[38;5;40mA\33[38;5;253m    \33[0m\33[38;5;40mfoo/bar.txt         \33[0m",
+        );
+        $expected = trim(implode(PHP_EOL, $expectedArray));
+        $this->assertSame(
+            str_replace("\33", "@", $expected), // To make it readable in terminal
+            str_replace("\33", "@", trim($status->getOutput(array(1))))
+        );
+        $this->assertSame($expected, trim($status->getOutput(array(1))));
     }
 
     public function testThatGetLinesReturnsAndArrayOfObjects(){
