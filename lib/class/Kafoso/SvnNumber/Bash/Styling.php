@@ -4,6 +4,8 @@ namespace Kafoso\SvnNumber\Bash;
 use Kafoso\SvnNumber\Bash\Command as BashCommand;
 
 class Styling {
+    const DEFAULT_FOREGROUND_COLOR = 231;
+
     protected $bashCommand;
 
     public function __construct(BashCommand $bashCommand){
@@ -15,14 +17,14 @@ class Styling {
      */
     public function normal($str, $foregroundColor = null, $backgroundColor = null){
         if (is_null($foregroundColor)) {
-            $foregroundColor = 231;
+            $foregroundColor = self::DEFAULT_FOREGROUND_COLOR;
         }
         return $this->constructColorSequence($foregroundColor, $backgroundColor) . "{$str}\33[0m";
     }
 
     public function bold($str, $foregroundColor = null, $backgroundColor = null){
         if (is_null($foregroundColor)) {
-            $foregroundColor = 231;
+            $foregroundColor = self::DEFAULT_FOREGROUND_COLOR;
         }
         return "\33[1m" . $this->constructColorSequence($foregroundColor, $backgroundColor) . "{$str}\33[0m";
     }
