@@ -59,6 +59,10 @@ class SvnNumber {
         return implode(" ", $this->additionalArgs);
     }
 
+    public function getBashCommand(){
+        return $this->bashCommand;
+    }
+
     public function getDiff(){
         if (!$this->diff) {
             $this->diff = new Diff($this);
