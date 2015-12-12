@@ -2,6 +2,7 @@
 namespace Kafoso\SvnNumber;
 
 use Kafoso\SvnNumber;
+use Kafoso\SvnNumber\Bash\Styling as BashStyling;
 
 class Diff {
     protected $svnNumber;

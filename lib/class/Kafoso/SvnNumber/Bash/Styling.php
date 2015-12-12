@@ -1,7 +1,15 @@
 <?php
-namespace Kafoso\SvnNumber;
+namespace Kafoso\SvnNumber\Bash;
 
-class BashStyling {
+use Kafoso\SvnNumber\Bash\Command as BashCommand;
+
+class Styling {
+    protected $bashCommand;
+
+    public function __construct(BashCommand $bashCommand){
+        $this->bashCommand = $bashCommand;
+    }
+
     /**
      * Inspiration: http://unix.stackexchange.com/questions/124407/what-color-codes-can-i-use-in-my-ps1-prompt
      */
@@ -20,7 +28,7 @@ class BashStyling {
     }
 
     public function getMaxTerminalColumns(){
-        exec("tput cols", $out);
+        $out = $this->bashCommand->exec("tput cols");
         if (is_array($out)) {
             return intval($out[0]);
         }

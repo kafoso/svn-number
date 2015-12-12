@@ -1,72 +1,54 @@
 <?php
 namespace Kafoso;
 
-use Kafoso\SvnNumber\Diff;
-use Kafoso\SvnNumber\Status;
-use Kafoso\SvnNumber\NumberHandler;
+use Kafoso\SvnNumber\Bash\Command as BashCommand;
+use Kafoso\SvnNumber\SvnCommand\Diff;
+use Kafoso\SvnNumber\SvnCommand\Status;
+use Kafoso\SvnNumber\Argument\NumberNegotiator;
 
 class SvnNumber {
-    protected $requestedNumbers = array();
-    protected $svnCommand;
-    protected $additionalArgs = array();
+    protected $bashCommand;
 
+    protected $requestedNumbers = array();
+    protected $action = null;
+    protected $additionalArgs = array();
     protected $diff;
     protected $status;
 
-    public function __construct($args){
+    public function __construct(array $args, BashCommand $bashCommand){
+        $this->bashCommand = $bashCommand;
         foreach (array_slice($args, 1, 2) as $arg) {
-            if (preg_match("/^\d+[,-\d]*?$/", $arg)) {
-                $numbers = array();
-                $exceptions = array();
-                $chunks = explode(",", $arg);
-                $numberHandler = new NumberHandler;
-                foreach ($chunks as $chunk) {
-                    try {
-                        if (preg_match("/^(\d)+-(\d+)$/", $chunk)) {
-                            $rangeArray = $numberHandler->stringRangeToArray($chunk);
-                            $numbers = array_merge(
-                                $numbers,
-                                $rangeArray
-                            );
-                        } else if (preg_match("/^\d+$/", $chunk)) {
-                            $numbers[] = $numberHandler->stringToInteger($chunk);
-                        } else {
-                            $exceptions[] = sprintf(
-                                "Invalid value: [%s]",
-                                $chunk
-                            );
-                        }
-                    } catch (\Exception $e) {
-                        $exceptions[] = $e->getMessage();
+            if (!$this->requestedNumbers) {
+                $numberNegotiator = new NumberNegotiator($arg);
+                if ($numberNegotiator->isMatch()) {
+                    $this->requestedNumbers = $numberNegotiator->getNumbers();
+                    if ($numberNegotiator->hasExceptions()) {
+                        echo "<pre>";var_dump("Kafoso ".__FILE__."::".__LINE__, $numberNegotiator->getExceptions()[0]->getTraceAsString());die("</pre>");
+                        throw new \RuntimeException(sprintf(
+                            "NumberNegotiator Exceptions: " . PHP_EOL . "%s",
+                            $numberNegotiator->getExceptionsAsString()
+                        ));
                     }
+                } else {
+                    $this->action = $arg;
                 }
-                if ($exceptions) {
-                    throw new \InvalidArgumentException(implode(PHP_EOL, $exceptions));
-                }
-                $this->requestedNumbers = array_unique($numbers);
-            } else {
-                $this->svnCommand = $args[1];
             }
         }
         if ($this->requestedNumbers) {
             $this->additionalArgs = array_slice($args, 3);
         } else {
-            $this->svnCommand = $args[1];
+            $this->action = $args[1];
             $this->additionalArgs = array_slice($args, 2);
-        }
-        if (!$this->svnCommand) {
-            throw new \RuntimeException(sprintf(
-                "'%s' is not defined! \"Tremble, mortals, and despair! Doom has come to this world!\"",
-                '$this->svnCommand'
-            ));
         }
     }
 
     public function exec($cmd){
         echo $cmd . PHP_EOL;
-        $output = "";
-        exec($cmd, $output);
-        return $output;
+        return $this->bashCommand->exec($cmd);
+    }
+
+    public function getAction(){
+        return $this->action;
     }
 
     public function getAdditionalArgs(){
@@ -75,10 +57,6 @@ class SvnNumber {
 
     public function getAdditionalArgsStr(){
         return implode(" ", $this->additionalArgs);
-    }
-
-    public function getCommand(){
-        return $this->svnCommand;
     }
 
     public function getDiff(){
@@ -99,8 +77,8 @@ class SvnNumber {
         return $this->status;
     }
 
-    public function hasCommand(){
-        return false == empty($this->svnCommand);
+    public function hasAction(){
+        return false == empty($this->action);
     }
 
     public function hasRequestedNumbers(){

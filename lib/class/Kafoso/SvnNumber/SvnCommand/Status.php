@@ -1,6 +1,8 @@
 <?php
 namespace Kafoso\SvnNumber;
 
+use Kafoso\SvnNumber\Bash\Styling as BashStyling;
+
 class Status {
     protected $svnStatus;
     protected $statusTypesRegex;

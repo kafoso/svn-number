@@ -2,26 +2,23 @@
 <?php
 use Kafoso\SvnNumber;
 
-define("BASE_DIR", readlink(dirname(__FILE__)));
-
-$loader = require(BASE_DIR . "/lib/vendor/autoload.php");
-$loader->addClassMap(require(BASE_DIR . "/lib/autoload_classmap.php"));
+require(readlink(dirname(__FILE__)) . "/lib/bootstrap.php");
 
 try {
     $svnNumber = new SvnNumber($argv);
-    if (false == $svnNumber->hasCommand()) {
+    if (false == $svnNumber->hasAction()) {
         $svnNumber->exec("svn"); // To show help hints
         exit;
     }
 
-    if (in_array($svnNumber->getCommand(), array("st", "status"))) {
+    if (in_array($svnNumber->getAction(), array("st", "status"))) {
         $status = $svnNumber->getStatus();
         if ($svnNumber->hasRequestedNumbers()) {
             exit($status->getOutput($svnNumber->getRequestedNumbers()));
         } else {
             exit($status->getOutput(null));
         }
-    } else if (in_array($svnNumber->getCommand(), array("di", "diff"))) {
+    } else if (in_array($svnNumber->getAction(), array("di", "diff"))) {
         $diff = $svnNumber->getDiff();
         if ($svnNumber->hasRequestedNumbers()) {
             $status = $svnNumber->getStatus();
@@ -33,7 +30,7 @@ try {
         } else {
             exit($diff->getOutputAll());
         }
-    } else if (in_array($svnNumber->getCommand(), array(
+    } else if (in_array($svnNumber->getAction(), array(
         "add",
         "ann",
         "annotate",
@@ -52,7 +49,7 @@ try {
             foreach ($allLinesInformations as $number => $lineInformation) {
                 $svnNumber->exec(sprintf(
                     "svn %s %s %s",
-                    $svnNumber->getCommand(),
+                    $svnNumber->getAction(),
                     $lineInformation["filePath"],
                     $svnNumber->getAdditionalArgsStr()
                 ));
@@ -63,7 +60,7 @@ try {
 
     $output = $svnNumber->exec(sprintf(
         "svn %s %s",
-        $svnNumber->getCommand(),
+        $svnNumber->getAction(),
         $svnNumber->getAdditionalArgsStr()
     ));
     exit(implode(PHP_EOL, $output));
