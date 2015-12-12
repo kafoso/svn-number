@@ -23,7 +23,6 @@ class SvnNumber {
                 if ($numberNegotiator->isMatch()) {
                     $this->requestedNumbers = $numberNegotiator->getNumbers();
                     if ($numberNegotiator->hasExceptions()) {
-                        echo "<pre>";var_dump("Kafoso ".__FILE__."::".__LINE__, $numberNegotiator->getExceptions()[0]->getTraceAsString());die("</pre>");
                         throw new \RuntimeException(sprintf(
                             "NumberNegotiator Exceptions: " . PHP_EOL . "%s",
                             $numberNegotiator->getExceptionsAsString()
