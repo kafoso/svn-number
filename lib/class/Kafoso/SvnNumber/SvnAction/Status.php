@@ -3,6 +3,7 @@ namespace Kafoso\SvnNumber\SvnAction;
 
 use Kafoso\SvnNumber;
 use Kafoso\SvnNumber\Bash\Styling as BashStyling;
+use Kafoso\SvnNumber\SvnAction\Status\Line;
 
 class Status extends AbstractSvnAction {
     protected $svnStatus;
@@ -40,7 +41,7 @@ class Status extends AbstractSvnAction {
         $outputLines = array();
         $maxColumns = $bashStyling->getMaxTerminalColumns();
         foreach ($statusLines as $line) {
-            if (preg_match($this->statusTypesRegex, trim($line), $match)) {
+            if ($match = $this->validateLine($line)) {
                 if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
                     $line = "";
                     $fileNumber++;
@@ -126,27 +127,28 @@ class Status extends AbstractSvnAction {
         return implode(PHP_EOL, $outputLines);
     }
 
-    public function getNumberedLinesArray(){
-        if (!$this->numberedLinesArray) {
-            $this->numberedLinesArray = array();
+    public function getLines(){
+        if (!$this->lines) {
+            $this->lines = array();
             $statusLines = $this->svnStatus;
             $fileNumber = 1;
             foreach ($statusLines as $line) {
-                if (preg_match($this->statusTypesRegex, trim($line), $match)) {
-                    $this->numberedLinesArray[$fileNumber] = array(
-                        "statusType" => $match[1],
-                        "filePath" =>  str_replace("\\", "/", $match[2]),
+                if ($match = $this->validateLine($line)) {
+                    $this->lines[$fileNumber] = new Line(
+                        $fileNumber,
+                        $match[2],
+                        $match[1]
                     );
                     $fileNumber++;
                 }
             }
         }
-        return $this->numberedLinesArray;
+        return $this->lines;
     }
 
     public function getLineInformationFromFileNumbers(array $numbers){
         $intersection = array_intersect_key(
-            $this->getNumberedLinesArray(),
+            $this->getLines(),
             array_flip($numbers)
         );
         if ($intersection) {
@@ -164,5 +166,12 @@ class Status extends AbstractSvnAction {
 
     public function getSvnStatus(){
         return $this->svnStatus;
+    }
+
+    protected function validateLine($line) {
+        if (preg_match($this->statusTypesRegex, trim($line), $match)) {
+            return $match;
+        }
+        return null;
     }
 }

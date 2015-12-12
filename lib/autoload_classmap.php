@@ -8,4 +8,5 @@ return array(
     'Kafoso\SvnNumber\SvnAction\AbstractSvnActionInterface' => __DIR__ . '/class/Kafoso/SvnNumber/SvnAction/AbstractSvnActionInterface.php',
     'Kafoso\SvnNumber\SvnAction\Diff' => __DIR__ . '/class/Kafoso/SvnNumber/SvnAction/Diff.php',
     'Kafoso\SvnNumber\SvnAction\Status' => __DIR__ . '/class/Kafoso/SvnNumber/SvnAction/Status.php',
+    'Kafoso\SvnNumber\SvnAction\Status\Line' => __DIR__ . '/class/Kafoso/SvnNumber/SvnAction/Status/Line.php',
 );
