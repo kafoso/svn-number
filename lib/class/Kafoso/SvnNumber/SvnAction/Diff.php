@@ -8,8 +8,7 @@ class Diff extends AbstractSvnAction {
         $diff = array();
         foreach ($filePaths as $filePath) {
             $cmd = "svn di " . $filePath . " " . $this->svnNumber->getAdditionalArgsStr();
-            $output = "";
-            exec($cmd, $output);
+            $output = $this->svnNumber->exec($cmd);
             $diff[] = implode(PHP_EOL, $this->stylize($output));
         }
         return implode(PHP_EOL, $diff);
@@ -17,8 +16,7 @@ class Diff extends AbstractSvnAction {
 
     public function getOutputAll(){
         $cmd = "svn di " . $this->svnNumber->getAdditionalArgsStr();
-        $output = "";
-        exec($cmd, $output);
+        $output = $this->svnNumber->exec($cmd);
         return implode(PHP_EOL, $this->stylize($output));
     }
 
