@@ -1,16 +1,9 @@
 <?php
-namespace Kafoso\SvnNumber;
+namespace Kafoso\SvnNumber\SvnAction;
 
-use Kafoso\SvnNumber;
 use Kafoso\SvnNumber\Bash\Styling as BashStyling;
 
-class Diff {
-    protected $svnNumber;
-
-    public function __construct(SvnNumber $svnNumber){
-        $this->svnNumber = $svnNumber;
-    }
-
+class Diff extends AbstractSvnAction {
     public function getOutputForFilePaths(array $filePaths) {
         $diff = array();
         foreach ($filePaths as $filePath) {

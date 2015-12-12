@@ -1,13 +1,14 @@
 <?php
-namespace Kafoso\SvnNumber;
+namespace Kafoso\SvnNumber\SvnAction;
 
+use Kafoso\SvnNumber;
 use Kafoso\SvnNumber\Bash\Styling as BashStyling;
 
-class Status {
+class Status extends AbstractSvnAction {
     protected $svnStatus;
-    protected $statusTypesRegex;
-    protected $numberedLinesArray;
-    protected $statusTypes = array( // Source: http://stackoverflow.com/a/2036/1879194
+    protected $statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D|S|I|X|~|R|L|E)\s+(.+)$/i';
+    protected $lines = array();
+    protected $statusHints = array( // Source: http://stackoverflow.com/a/2036/1879194
         "U" => "Working file was updated",
         "G" => "Changes on the repo were automatically merged into the working copy",
         "M" => "Working copy is modified",
@@ -27,10 +28,9 @@ class Status {
         "> moved" => "Item was moved"
     );
 
-    public function __construct(){
-        exec("svn st", $output);
-        $this->svnStatus = $output;
-        $this->statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D|S|I|X|~|R|L|E)\s+(.+)$/i';
+    public function __construct(SvnNumber $svnNumber){
+        parent::__construct($svnNumber);
+        $this->svnStatus = $svnNumber->getBashCommand()->exec("svn st");
     }
 
     public function getOutput(array $requestedNumbers = null){
@@ -158,7 +158,11 @@ class Status {
         ));
     }
 
-    public function getStatusTypes(){
-        return $this->statusTypes;
+    public function getStatusHints(){
+        return $this->statusHints;
+    }
+
+    public function getSvnStatus(){
+        return $this->svnStatus;
     }
 }
