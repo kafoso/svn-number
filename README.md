@@ -11,41 +11,71 @@ Subversion (SVN) management in terminal made easy.
 
 # What is it?
 
-`svn-number` makes management of your SVN projects much easier.
+`svn-number` makes management of your SVN projects a blast.
+
+This library includes:
 
 - **Pointers**<br/>
-Pointers (numbers) are added in front file modifications when running `svn status`. By referencing said numbers, `svn-number` turns each number into it's respective file path.
+Pointers are file indexes, added in front file references when running `svn status`. By referencing said indexes, `svn-number` turns each number into it's respective file path, meaning you only have to type a number instead of partial or full file paths.
   - **Ranges**<br/>
-  Apply the same `svn` command to multiple files at once.
+  Apply the same `svn` command to multiple files at once using the hypen, `-`, to indicate a number ranges. E.g. `2-6` = `[2,3,4,5,6]`.
+  - **Non-consecutive numbers (comma separated)**<br/>
+  Use commas (without any spaces) to add non-consecutive. E.g. `2,4` = `[2,4]`. May also be combined with ranges, e.g. `2-4,7` = `[2,3,4,7]`.
 - **Colors**<br/>
-Colors are added to `svn status` and  `svn diff`, vastly improving readability. For details, see [Styling](#usage-styling).
+Colors are added to `svn status` and `svn diff`, vastly improving readability. For details, see [Styling](#usage-styling).
 - **Fixed file paths**
-File paths a converted to always use forward slashes. No more backslash frustrations!
+File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\bad` becomes `C:/bad/windows/is/bad`. No more backslash frustrations! Even if you dislike the pointers, you may now - through `svn-number status` - copy-paste the file names, and `svn` will be able to handle them.
 
 # Installation
 
 Requires: PHP 5.3+
 
-**TODO**
+- Retrieve this repository, e.g.: `git clone git@github.com:kafoso/svn-number.git`.
+- Add an [alias](#installation-aliasing) or symlink, referencing the location of `svn-number.php`.
+
+That's it!
 
 # Usage
 
-Use the same way as `svn`, but instead write `svn-number`. I.e. `svn-number <args>` or `svn-number # <args>`, where the `#` is the integer presented to you when doing `git number status`.
+- In a terminal, navigate to your respective SVN project repository.
+- Use `svn-number`, e.g. by running `svn-number status`.
+
+Use `svn-number` same way as `svn`, but instead write `svn-number`. I.e. `svn-number <args>` or `svn-number # <args>`, where the `#` is the integer presented to you when doing `svn-number status`.
 
 <a name="usage-styling"></a>
 ## Styling
 
-Styling is added to `svn-number status` and  `svn-number diff`.
+Styling is added to `svn-number status` and `svn-number diff`.
 
+<a name="installation-aliasing"></a>
 ## Aliasing
 
-I recommend doing some aliases in your `.bashrc` or `.profile` for ease of use. E.g.:
+I recommend doing some aliases in your `.bashrc` or `.profile` for convenience, ease of use, and speed.
+
+For instance:
 
 - `sn ` = `svn-number `
-- `ss ` = `svn-number status `
-- `sd ` = `svn-number diff `
 
-# Inspiration & Credit
+- `sa ` = `svn-number add `
+- `sd ` = `svn-number diff `
+- `so ` = `svn-number checkout `
+- `srev ` = `svn-number revert `
+- `srm ` = `svn-number remove `
+- `ss ` = `svn-number status `
+
+# Motivation
+
+Going from `git` to `svn`, and from OSX/Linux to Windows, I needed a convenient yet reliable means of managing my SVN projects in a [Git Bash](https://git-for-windows.github.io/) terminal on Windows.
+
+I'm not fond of GUIs for these purposes (PhpStorm, TortoiseSVN, WinSVN, etc.), and I wanted to stick with my ol' faithful terminal.
+
+`git svn` was not an option due to a workplace policy, and getting existing libraries ([`svn-color`](https://github.com/philchristensen/svn-color), [`colordiff`](http://www.colordiff.org/), etc.) to function properly on Windows is often tedious and frustrating.
+
+Therefore, I decided it was time for a minimalist SVN library, providing some much needed conveniences. A library, which should work cross-platform.
+
+PHP became the choice of programming language. It's a language I'm fairly adept in, it's easy to install on most operating systems, and these days it usually works out-of-the-box <sup>**1**</sup>.
+
+# Inspiration & Credits
 
 This library was inspired by:
 
@@ -58,26 +88,13 @@ License: [MIT](/LICENSE)
 
 Basically: Use `svn-number` at your own risk.
 
-# Reasoning behind this library
-
-Going from `git` to `svn`, and from OSX/Linux to Windows, I needed a convenient yet reliable means of managing my SVN projects in a [Git Bash](https://git-for-windows.github.io/) terminal on Windows.
-
-I'm not fund of GUIs for these purposes (PhpStorm, TortoiseSVN, WinSVN, etc.), so I wanted to stick with my ol' faithful terminal.
-
-`git svn` was not an option due to a workplace policy, and getting existing libraries ([`svn-color`](https://github.com/philchristensen/svn-color), [`colordiff`](http://www.colordiff.org/), etc.) to function properly on Windows is often tedious and frustrating.
-
-Therefore, I decided it was time for a minimalist SVN library, providing some much needed conveniences. A library, which should work cross-platform.
-
-PHP became the choice of programming language. It's a language I'm fairly adept in, it's easy to install on most operating systems, and these days it usually works out-of-the-box <sup>**1**</sup>.
-
 # TODO
 
 - `svn merge`
-- Ranges
 
 # Future plans
 
-- Enhance run speed.
+- Enhance execution speed. Perhaps comparing change hashes is faster than a full `svn status` when having to do an `svn diff`?
 
 # Footnotes
 
