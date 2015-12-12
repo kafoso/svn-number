@@ -14,10 +14,16 @@ class Command {
     }
 
     public function getMaxTerminalColumns(){
-        $out = $this->exec("tput cols");
-        if (is_array($out)) {
-            return intval($out[0]);
+        exec("tput cols", $output, $return);
+        if ($return === 0) {
+            if (is_array($output)) {
+                return intval($output[0]);
+            }
+            return 0;
         }
-        return 0;
+        throw new \RuntimeException(sprintf(
+            "Shell command error: %s",
+            implode(PHP_EOL, $output)
+        ));
     }
 }
