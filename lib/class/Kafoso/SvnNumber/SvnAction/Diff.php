@@ -34,12 +34,12 @@ class Diff extends AbstractSvnAction {
             foreach ($lineRegexToColor as $regex => $colors) {
                 if (preg_match($regex, ltrim($line))) {
                     list($foreground, $background) = $colors;
-                    $line = $bashStyling->normal($line, $foreground, $background);
+                    $line = $bashStyling->normal($line, $foreground, $background, true);
                     break;
                 }
             }
             if (preg_match('/^Index: /', ltrim($line))) {
-                $line = PHP_EOL . $bashStyling->normal($line, 226);
+                $line = PHP_EOL . $bashStyling->normal($line, 226, null, true);
             }
         }
         return $svnDiff;
