@@ -16,15 +16,15 @@ Subversion (SVN) management in terminal made easy.
 This library includes:
 
 - **Pointers**<br/>
-Pointers are file indexes, added in front file references when running `svn status`. By referencing said indexes, `svn-number` turns each number into it's respective file path, meaning you only have to type a number instead of partial or full file paths.
+Pointers are file indexes, added in front file references when running `svn-number status`. By referencing said indexes when you type new commands, `svn-number` turns each number into its respective file path, meaning you only have to type a number instead of partial or full file paths.
   - **Ranges**<br/>
   Apply the same `svn` command to multiple files at once using the hypen, `-`, to indicate a number ranges. E.g. `2-6` = `[2,3,4,5,6]`.
   - **Non-consecutive numbers (comma separated)**<br/>
-  Use commas (without any spaces) to add non-consecutive. E.g. `2,4` = `[2,4]`. May also be combined with ranges, e.g. `2-4,7` = `[2,3,4,7]`.
+  Use commas (without any spaces) to reference non-consecutive numbers. E.g. `2,4` = `[2,4]`. May also be combined with ranges, e.g. `2-4,7` = `[2,3,4,7]`.
 - **Colors**<br/>
-Colors are added to `svn status` and `svn diff`, vastly improving readability. For details, see [Styling](#usage-styling).
-- **Fixed file paths**
-File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\bad` becomes `C:/bad/windows/is/bad`. No more backslash frustrations! Even if you dislike the pointers, you may now - through `svn-number status` - copy-paste the file names, and `svn` will be able to handle them.
+Colors are added to `svn status` and `svn diff` - i.e. when using `svn-number status` and `svn-number diff`, respectively - vastly improving readability. For details, see [Styling](#usage-styling).
+- **Fixed file paths**<br/>
+File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\bad` becomes `C:/bad/windows/is/bad`. No more backslash frustrations! Even if you dislike the pointer logic, explained above, you may now - through `svn-number status` - copy-paste the file names, and use them with your `svn` actions.
 
 # Installation
 
