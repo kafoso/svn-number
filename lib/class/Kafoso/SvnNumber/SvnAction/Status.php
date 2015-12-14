@@ -6,6 +6,17 @@ use Kafoso\SvnNumber\Bash\Styling as BashStyling;
 use Kafoso\SvnNumber\SvnAction\Status\Line;
 
 class Status extends AbstractSvnAction {
+    const COLOR_CODE_GRAY_DARK = 234;
+    const COLOR_CODE_GRAY_LIGHT = 246;
+    const COLOR_CODE_GREEN = 40;
+    const COLOR_CODE_ORANGE = 208;
+    const COLOR_CODE_RED = 160;
+    const COLOR_CODE_TEAL = 33;
+    const COLOR_CODE_WHITE = 231;
+    const COLOR_CODE_YELLOW = 226;
+    const COLUMN_INDENTATION_COUNT_FILEPATH = 12;
+    const COLUMN_DEFAULT_COUNT = 128;
+
     protected $svnStatus;
     protected $statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D\s+C|D|S|I|X|~|R|L|E)\s+(.+)$/i';
     protected $lines = array();
@@ -39,7 +50,7 @@ class Status extends AbstractSvnAction {
         $statusLines = $this->svnStatus;
         $fileNumber = 1;
         $outputLines = array();
-        $maxColumns = $this->svnNumber->getBashCommand()->getMaxTerminalColumns() - 12;
+        $maxColumns = $this->svnNumber->getBashCommand()->getMaxTerminalColumns() - self::COLUMN_INDENTATION_COUNT_FILEPATH;
         foreach ($statusLines as $line) {
             if ($match = $this->validateLine($line)) {
                 if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
@@ -49,12 +60,12 @@ class Status extends AbstractSvnAction {
                 }
                 $backgroundColor = null;
                 if ($fileNumber%2 == 0) {
-                    $backgroundColor = 234;
+                    $backgroundColor = self::COLOR_CODE_GRAY_DARK;
                 }
                 $line = trim($line);
                 $replacedLine = $bashStyling->bold(
                     " " . str_pad($fileNumber, 4, " ", STR_PAD_LEFT) . "  ",
-                    231,
+                    null,
                     $backgroundColor
                 );
                 $padding = $bashStyling->normal(
@@ -63,71 +74,78 @@ class Status extends AbstractSvnAction {
                     $backgroundColor,
                     true
                 );
-                $filePath = str_pad(str_replace("\\", "/", $match[2]), min(128-12, $maxColumns));
+                $filePathPaddingRight = min(
+                    (self::COLUMN_DEFAULT_COUNT - self::COLUMN_INDENTATION_COUNT_FILEPATH),
+                    $maxColumns
+                );
+                $filePath = str_pad(str_replace("\\", "/", $match[2]), $filePathPaddingRight);
                 switch (preg_replace('/\s+/', ' ', strtoupper($match[1]))) {
                     case "A +":
                         $match[1] = "A+";
                     case "A":
                     case "A+":
-                        $color = 40;
-                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
-                            . $bashStyling->normal($filePath, $color, $backgroundColor);
+                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_GREEN, $backgroundColor)
+                            . $padding
+                            . $bashStyling->normal($filePath, self::COLOR_CODE_GREEN, $backgroundColor);
                         break;
                     case "D C":
-                        $replacedLine .= $bashStyling->bold("D", 160, $backgroundColor)
-                            . $bashStyling->bold("C", 208, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold("D", self::COLOR_CODE_RED, $backgroundColor)
+                            . $bashStyling->bold("C", self::COLOR_CODE_ORANGE, $backgroundColor)
                             . "   "
-                            . $bashStyling->normal($filePath, 208, $backgroundColor);
+                            . $bashStyling->escape()
+                            . $bashStyling->normal($filePath, self::COLOR_CODE_ORANGE, $backgroundColor);
                         break;
                     case "C":
                     case "!":
-                        $color = 208;
-                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
-                            . $bashStyling->normal($filePath, $color, $backgroundColor);
+                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_ORANGE, $backgroundColor)
+                            . $padding
+                            . $bashStyling->normal($filePath, self::COLOR_CODE_ORANGE, $backgroundColor);
                         break;
                     case "D":
-                        $color = 160;
-                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
-                            . $bashStyling->normal($filePath, $color, $backgroundColor);
+                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_RED, $backgroundColor)
+                            . $padding
+                            . $bashStyling->normal($filePath, self::COLOR_CODE_RED, $backgroundColor);
                         break;
                     case "E":
                     case "I":
                     case "X":
                     case "?":
-                        $color = 246;
-                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
-                            . $bashStyling->normal($filePath, $color, $backgroundColor);
+                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_GRAY_LIGHT, $backgroundColor)
+                            . $padding
+                            . $bashStyling->normal($filePath, self::COLOR_CODE_GRAY_LIGHT, $backgroundColor);
                         break;
                     case "L":
-                        $color = 226;
-                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
-                            . $bashStyling->normal($filePath, $color, $backgroundColor);
+                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_YELLOW, $backgroundColor)
+                            . $padding
+                            . $bashStyling->normal($filePath, self::COLOR_CODE_YELLOW, $backgroundColor);
                         break;
                     case "M":
                     case "R":
-                        $color = 33;
-                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
-                            . $bashStyling->normal($filePath, $color, $backgroundColor);
+                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_TEAL, $backgroundColor)
+                            . $padding
+                            . $bashStyling->normal($filePath, self::COLOR_CODE_TEAL, $backgroundColor);
                         break;
                     default:
-                        $color = 231;
-                        $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding . $filePath;
+                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_WHITE, $backgroundColor)
+                            . $padding
+                            . $filePath;
                         break;
                 }
                 $outputLines[] = $bashStyling->escape($replacedLine);
                 $fileNumber++;
             } else if (preg_match('/^\s+\>\s+(.+)$/', $line, $match)) {
-                $line = str_repeat(" ", 13) . "> " . $match[1];
+                $leftHandStr = str_repeat(" ", (self::COLUMN_INDENTATION_COUNT_FILEPATH+1)) . "> ";
+                $line = $leftHandStr . str_replace("\\", "/", $match[1]);
                 $outputLines[] = $bashStyling->normal(
-                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns)),
-                    231,
+                    str_pad($line, min(self::COLUMN_DEFAULT_COUNT, $maxColumns)),
+                    self::COLOR_CODE_WHITE,
                     $backgroundColor,
                     true
                 );
             } else {
                 $outputLines[] = $bashStyling->escape() . $bashStyling->normal(
-                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns)),
-                    231,
+                    str_pad(str_replace("\\", "/", $line), min(self::COLUMN_DEFAULT_COUNT, $maxColumns)),
+                    null,
                     null,
                     true
                 );
