@@ -1,11 +1,13 @@
 #!/c/xampp/php/php
 <?php
 use Kafoso\SvnNumber;
+use Kafoso\SvnNumber\Bash\Command as BashCommand;
 
 require(readlink(dirname(__FILE__)) . "/lib/bootstrap.php");
 
 try {
-    $svnNumber = new SvnNumber($argv);
+    $bashCommand = new BashCommand;
+    $svnNumber = new SvnNumber($argv, $bashCommand);
     if (false == $svnNumber->hasAction()) {
         $svnNumber->exec("svn"); // To show help hints
         exit;
