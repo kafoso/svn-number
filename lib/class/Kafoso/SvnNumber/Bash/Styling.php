@@ -37,12 +37,14 @@ class Styling {
     protected function constructColorSequence($foregroundColor, $backgroundColor = null) {
         $sequence = "";
         if ($backgroundColor) {
+            $backgroundColor = str_pad($backgroundColor, 3, "0", STR_PAD_LEFT);
             $sequence .= str_replace(
                 "%BACKGROUND_COLOR%",
                 $backgroundColor,
                 self::BACKGROUND_COLOR_PATTERN
             );
         }
+        $foregroundColor = str_pad($foregroundColor, 3, "0", STR_PAD_LEFT);
         return $sequence . str_replace(
             "%FOREGROUND_COLOR%",
             $foregroundColor,
