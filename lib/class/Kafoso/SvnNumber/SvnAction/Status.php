@@ -6,14 +6,6 @@ use Kafoso\SvnNumber\Bash\Styling as BashStyling;
 use Kafoso\SvnNumber\SvnAction\Status\Line;
 
 class Status extends AbstractSvnAction {
-    const COLOR_CODE_GRAY_DARK = 234;
-    const COLOR_CODE_GRAY_LIGHT = 246;
-    const COLOR_CODE_GREEN = 40;
-    const COLOR_CODE_ORANGE = 208;
-    const COLOR_CODE_RED = 160;
-    const COLOR_CODE_TEAL = 33;
-    const COLOR_CODE_WHITE = 231;
-    const COLOR_CODE_YELLOW = 226;
     const COLUMN_INDENTATION_COUNT_FILEPATH = 12;
     const COLUMN_DEFAULT_COUNT = 128;
 
@@ -50,7 +42,8 @@ class Status extends AbstractSvnAction {
         $statusLines = $this->svnStatus;
         $fileNumber = 1;
         $outputLines = array();
-        $maxColumns = $this->svnNumber->getBashCommand()->getMaxTerminalColumns() - self::COLUMN_INDENTATION_COUNT_FILEPATH;
+        $maxColumns = $this->svnNumber->getBashCommand()->getMaxTerminalColumns()
+            - self::COLUMN_INDENTATION_COUNT_FILEPATH;
         foreach ($statusLines as $line) {
             if ($match = $this->validateLine($line)) {
                 if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
@@ -60,7 +53,7 @@ class Status extends AbstractSvnAction {
                 }
                 $backgroundColor = null;
                 if ($fileNumber%2 == 0) {
-                    $backgroundColor = self::COLOR_CODE_GRAY_DARK;
+                    $backgroundColor = static::COLOR_CODE_GRAY_DARK;
                 }
                 $line = trim($line);
                 $replacedLine = $bashStyling->bold(
@@ -84,49 +77,49 @@ class Status extends AbstractSvnAction {
                         $match[1] = "A+";
                     case "A":
                     case "A+":
-                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_GREEN, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_GREEN, $backgroundColor)
                             . $padding
-                            . $bashStyling->normal($filePath, self::COLOR_CODE_GREEN, $backgroundColor);
+                            . $bashStyling->normal($filePath, static::COLOR_CODE_GREEN, $backgroundColor);
                         break;
                     case "D C":
-                        $replacedLine .= $bashStyling->bold("D", self::COLOR_CODE_RED, $backgroundColor)
-                            . $bashStyling->bold("C", self::COLOR_CODE_ORANGE, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold("D", static::COLOR_CODE_RED, $backgroundColor)
+                            . $bashStyling->bold("C", static::COLOR_CODE_ORANGE, $backgroundColor)
                             . "   "
                             . $bashStyling->escape()
-                            . $bashStyling->normal($filePath, self::COLOR_CODE_ORANGE, $backgroundColor);
+                            . $bashStyling->normal($filePath, static::COLOR_CODE_ORANGE, $backgroundColor);
                         break;
                     case "C":
                     case "!":
-                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_ORANGE, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_ORANGE, $backgroundColor)
                             . $padding
-                            . $bashStyling->normal($filePath, self::COLOR_CODE_ORANGE, $backgroundColor);
+                            . $bashStyling->normal($filePath, static::COLOR_CODE_ORANGE, $backgroundColor);
                         break;
                     case "D":
-                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_RED, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_RED, $backgroundColor)
                             . $padding
-                            . $bashStyling->normal($filePath, self::COLOR_CODE_RED, $backgroundColor);
+                            . $bashStyling->normal($filePath, static::COLOR_CODE_RED, $backgroundColor);
                         break;
                     case "E":
                     case "I":
                     case "X":
                     case "?":
-                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_GRAY_LIGHT, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_GRAY_LIGHT, $backgroundColor)
                             . $padding
-                            . $bashStyling->normal($filePath, self::COLOR_CODE_GRAY_LIGHT, $backgroundColor);
+                            . $bashStyling->normal($filePath, static::COLOR_CODE_GRAY_LIGHT, $backgroundColor);
                         break;
                     case "L":
-                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_YELLOW, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_YELLOW, $backgroundColor)
                             . $padding
-                            . $bashStyling->normal($filePath, self::COLOR_CODE_YELLOW, $backgroundColor);
+                            . $bashStyling->normal($filePath, static::COLOR_CODE_YELLOW, $backgroundColor);
                         break;
                     case "M":
                     case "R":
-                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_TEAL, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_BLUE, $backgroundColor)
                             . $padding
-                            . $bashStyling->normal($filePath, self::COLOR_CODE_TEAL, $backgroundColor);
+                            . $bashStyling->normal($filePath, static::COLOR_CODE_BLUE, $backgroundColor);
                         break;
                     default:
-                        $replacedLine .= $bashStyling->bold($match[1], self::COLOR_CODE_WHITE, $backgroundColor)
+                        $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_WHITE, $backgroundColor)
                             . $padding
                             . $filePath;
                         break;
@@ -138,7 +131,7 @@ class Status extends AbstractSvnAction {
                 $line = $leftHandStr . str_replace("\\", "/", $match[1]);
                 $outputLines[] = $bashStyling->normal(
                     str_pad($line, min(self::COLUMN_DEFAULT_COUNT, $maxColumns)),
-                    self::COLOR_CODE_WHITE,
+                    static::COLOR_CODE_WHITE,
                     $backgroundColor,
                     true
                 );
