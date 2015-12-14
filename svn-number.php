@@ -2,6 +2,7 @@
 <?php
 use Kafoso\SvnNumber;
 use Kafoso\SvnNumber\Bash\Command as BashCommand;
+use Kafoso\SvnNumber\Bash\SvnAction\Status\Line;
 
 require(readlink(dirname(__FILE__)) . "/lib/bootstrap.php");
 
@@ -33,18 +34,44 @@ try {
             exit($diff->getOutputAll());
         }
     } else if (in_array($svnNumber->getAction(), array(
-        "add",
-        "ann",
-        "annotate",
-        "blame",
-        "del",
-        "delete",
-        "praise",
-        "remove",
-        "resolve",
-        "revert",
-        "rm"
+            "ci",
+            "commit",
         ))) {
+        /**
+         * Apply same action to multiple files (bulk). E.g.:
+         *      # svn commit foo.txt bar.txt -m "Two files committed"
+         */
+        if ($svnNumber->hasRequestedNumbers()) {
+            $status = $svnNumber->getStatus();
+            $filePaths = array_map(function(Line $line){
+                return escapeshellarg($line->getFilePath());
+            }, $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers()));
+            $svnNumber->exec(sprintf(
+                "svn %s %s %s",
+                $svnNumber->getAction(),
+                implode(" ", $filePaths),
+                $svnNumber->getAdditionalArgsStr()
+            ));
+            exit;
+        }
+    } else if (in_array($svnNumber->getAction(), array(
+            "add",
+            "ann",
+            "annotate",
+            "blame",
+            "del",
+            "delete",
+            "praise",
+            "remove",
+            "resolve",
+            "revert",
+            "rm",
+        ))) {
+        /**
+         * Apply same action to multiple files individually through a loop. E.g.:
+         *      # svn revert foo.txt
+         *      # svn revert bar.txt
+         */
         if ($svnNumber->hasRequestedNumbers()) {
             $status = $svnNumber->getStatus();
             $allLinesInformations = $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers());
@@ -52,7 +79,7 @@ try {
                 $svnNumber->exec(sprintf(
                     "svn %s %s %s",
                     $svnNumber->getAction(),
-                    $line->getFilePath(),
+                    escapeshellarg($line->getFilePath()),
                     $svnNumber->getAdditionalArgsStr()
                 ));
             }
