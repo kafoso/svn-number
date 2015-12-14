@@ -14,8 +14,8 @@ class StatusTest extends \PHPUnit_Framework_TestCase {
     public function testThatOutputIsAsExpectedForAll(){
         $status = new Status($this->getSvnNumberMock());
         $expectedArray = array(
-            "\33[1m\33[38;5;231m    1  \33[1m\33[38;5;40mA\33[38;5;253m    \33[0m\33[38;5;40mfoo/bar.txt         \33[0m",
-            "\33[1m\33[48;5;234m\33[38;5;231m    2  \33[1m\33[48;5;234m\33[38;5;160mD\33[48;5;234m\33[38;5;253m    \33[0m\33[48;5;234m\33[38;5;160mfoo/baz.txt         \33[0m",
+            "\33[1m\33[38;5;253m    1  \33[1m\33[38;5;40mA\33[38;5;253m    \33[0m\33[38;5;40mfoo/bar.txt         \33[0m",
+            "\33[1m\33[48;5;234m\33[38;5;253m    2  \33[1m\33[48;5;234m\33[38;5;160mD\33[48;5;234m\33[38;5;253m    \33[0m\33[48;5;234m\33[38;5;160mfoo/baz.txt         \33[0m",
         );
         $expected = trim(implode(PHP_EOL, $expectedArray));
         $this->assertSame(
@@ -28,7 +28,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase {
     public function testThatOutputIsAsExpectedForAFiniteNumberOfFiles(){
         $status = new Status($this->getSvnNumberMock());
         $expectedArray = array(
-            "\33[1m\33[38;5;231m    1  \33[1m\33[38;5;40mA\33[38;5;253m    \33[0m\33[38;5;40mfoo/bar.txt         \33[0m",
+            "\33[1m\33[38;5;253m    1  \33[1m\33[38;5;40mA\33[38;5;253m    \33[0m\33[38;5;40mfoo/bar.txt         \33[0m",
         );
         $expected = trim(implode(PHP_EOL, $expectedArray));
         $this->assertSame(

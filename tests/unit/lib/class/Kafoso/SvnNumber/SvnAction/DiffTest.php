@@ -11,7 +11,7 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
             "@@ -1,4 +1,5 @@",
             "-bar",
             "+foo",
-            "something unchanged"
+            " something unchanged"
         );
         $bashCommandMock = $this->getMockBuilder('Kafoso\SvnNumber\Bash\Command')
             ->setMethods(array(
@@ -42,17 +42,17 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
             "\33[38;5;242m===================================================================\33[0m",
             "\33[38;5;160m--- my/little/file.txt	(revision 3)\33[0m",
             "\33[38;5;40m+++ my/little/file.txt	(working copy)\33[0m",
-            "\33[38;5;33m@@ -1,4 +1,5 @@\33[0m",
+            "\33[38;5;45m@@ -1,4 +1,5 @@\33[0m",
             "\33[38;5;160m-bar\33[0m",
             "\33[38;5;40m+foo\33[0m",
-            "something unchanged"
+            " something unchanged"
         );
         $expected = implode(PHP_EOL, $expectedArray);
         ob_start();
         $found = trim($diff->getOutputForFilePaths(array("my/little/file.txt")));
         $output = ob_get_contents();
         ob_end_clean();
-        $this->assertSame("svn di my/little/file.txt", trim($output));
+        $this->assertSame("svn diff \"my/little/file.txt\"", trim($output));
         $this->assertSame($expected, $found);
     }
 }
