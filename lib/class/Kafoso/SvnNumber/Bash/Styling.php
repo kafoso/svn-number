@@ -30,8 +30,8 @@ class Styling {
             return self::BOLD . $this->normal($str, $foregroundColor, $backgroundColor, $escape);
     }
 
-    public function escape($str){
-        return $str . self::ESCAPE;
+    public function escape($str = null){
+        return strval($str) . self::ESCAPE;
     }
 
     protected function constructColorSequence($foregroundColor, $backgroundColor = null) {
