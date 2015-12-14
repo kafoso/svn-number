@@ -55,7 +55,12 @@ class SvnNumber {
     }
 
     public function getAdditionalArgsStr(){
-        return implode(" ", $this->additionalArgs);
+        return implode(" ", array_map(function($arg){
+            if (preg_match("/^[^-\|]/", $arg)) {
+                return escapeshellarg($arg);
+            }
+            return $arg;
+        }, $this->additionalArgs));
     }
 
     public function getBashCommand(){
