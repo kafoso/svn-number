@@ -119,10 +119,11 @@ class Status extends AbstractSvnAction {
                     true
                 );
             } else {
-                $outputLines[] = $bashStyling->normal(
-                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns) + 12),
+                $outputLines[] = $bashStyling->escape() . $bashStyling->normal(
+                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns)),
                     231,
-                    $backgroundColor
+                    null,
+                    true
                 );
             }
         }
