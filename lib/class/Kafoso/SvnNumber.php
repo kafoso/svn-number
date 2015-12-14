@@ -75,7 +75,7 @@ class SvnNumber {
 
     public function getStatus(){
         if (!$this->status) {
-            $this->status = new Status;
+            $this->status = new Status($this);
         }
         return $this->status;
     }
