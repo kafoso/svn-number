@@ -9,13 +9,13 @@ Subversion (SVN) management in terminal made easy.
 
 -------------------------
 
-# What is it?
+# What `svn-number` does
 
 `svn-number` makes management of your SVN projects a blast.
 
 This library includes:
 
-- **Pointers**<br/>
+- <a name="pointers"></a>**Pointers**<br/>
 Pointers are file indexes, added in front file references when running `svn-number status`. By referencing said indexes when you type new commands, `svn-number` turns each number into its respective file path, meaning you only have to type a number instead of partial or full file paths.
   - **Ranges**<br/>
   Apply the same `svn` command to multiple files at once using the hypen, `-`, to indicate a number ranges. E.g. `2-6` = `[2,3,4,5,6]`.
@@ -23,10 +23,14 @@ Pointers are file indexes, added in front file references when running `svn-numb
   Use commas (without any spaces) to reference non-consecutive numbers. E.g. `2,4` = `[2,4]`. May also be combined with ranges, e.g. `2-4,7` = `[2,3,4,7]`.
 - **Colors**<br/>
 Colors are added to `svn status` and `svn diff` - i.e. when using `svn-number status` and `svn-number diff`, respectively - vastly improving readability. For details, see [Styling](#usage-styling).
-- **Fixed file paths & escapes**<br/>
+- <a name="fixed-file-paths-escapes"></a>**Fixed file paths & escapes**<br/>
 File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\bad` becomes `C:/bad/windows/is/bad`. No more backslash frustrations!<br/>
 <br/>Additionally, file paths are escaped, meaning space characters no longer pose a problem!<br/>
 <br/>If you dislike the pointer logic (explained above), you may now - through `svn-number status` - copy-paste the file names, and use them with the standard `svn` actions.
+
+# What `svn-number` **does not** do
+
+- It doesn't modify other arguments than the [Pointers](#pointers) and the [file paths](#fixed-file-paths-escapes) (slash conversion and escaping). This means you have to apply additional arguments as needed, just as before. E.g. `svn-number revert -R my/folder` to recursively revert the folder and all of its contents.
 
 # Installation
 
@@ -93,6 +97,7 @@ Basically: Use `svn-number` at your own risk.
 # TODO
 
 - `svn merge`
+- Make argument order insignificant. Currently, the svn action and pointers must be provided as 2nd and/or 3rd arguments, e.g. "svn-number status 1" or "svn-number 1 status". However, a command like `svn -u st js\views\home\HomeView.js` is valid; a behavior which `svn-number` should reflect.
 
 # Future plans
 
