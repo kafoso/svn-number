@@ -2,7 +2,7 @@
 <?php
 use Kafoso\SvnNumber;
 use Kafoso\SvnNumber\Bash\Command as BashCommand;
-use Kafoso\SvnNumber\Bash\SvnAction\Status\Line;
+use Kafoso\SvnNumber\SvnAction\Status\Line;
 
 require(readlink(dirname(__FILE__)) . "/lib/bootstrap.php");
 
@@ -26,8 +26,8 @@ try {
         if ($svnNumber->hasRequestedNumbers()) {
             $status = $svnNumber->getStatus();
             $allLinesInformation = $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers());
-            $filePaths = array_map(function($v){
-                return $v["filePath"];
+            $filePaths = array_map(function(Line $line){
+                return $line->getFilePath();
             }, $allLinesInformation);
             exit($diff->getOutputForFilePaths($filePaths));
         } else {
