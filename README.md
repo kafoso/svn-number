@@ -98,6 +98,7 @@ Basically: Use `svn-number` at your own risk.
 
 - `svn merge`
 - Make argument order insignificant. Currently, the svn action and pointers must be provided as 2nd and/or 3rd arguments, e.g. "svn-number status 1" or "svn-number 1 status". However, a command like `svn -u st js\views\home\HomeView.js` is valid; a behavior which `svn-number` should reflect.
+- Terminal overflow on diffs.
 
 # Future plans
 
