@@ -22,24 +22,28 @@ class Diff extends AbstractSvnAction {
 
     protected function stylize(array $svnDiff){
         $lineRegexToColor = array(
-            '/^\=+$/' => array(242, null),
-            '/^\+\+\+\s+/' => array(40, null),
-            '/^---\s+/' => array(160, null),
-            '/^\+/' => array(40, null),
-            '/^-/' => array(160, null),
-            '/^@@\s+/' => array(33, null),
+            '/^(\=+(\s*))$/' => array(242, null),
+            '/^(\+\+\+\s+.*)$/' => array(40, null),
+            '/^(---\s+.*)$/' => array(160, null),
+            '/^(\+.*)$/' => array(40, null),
+            '/^(-.*)$/' => array(160, null),
+            '/^(@@ .+ @@).*$/' => array(33, null),
+            '/^(Index: .+)$/' => array(226, null)
         );
         $bashStyling = new BashStyling;
         foreach ($svnDiff as &$line) {
             foreach ($lineRegexToColor as $regex => $colors) {
-                if (preg_match($regex, ltrim($line))) {
+                if (preg_match($regex, ltrim($line), $match)) {
                     list($foreground, $background) = $colors;
-                    $line = $bashStyling->normal($line, $foreground, $background, true);
+                    $count = 1;
+                    $line = str_replace(
+                        $match[1],
+                        $bashStyling->normal($match[1], $foreground, $background, true),
+                        $line,
+                        $count
+                    );
                     break;
                 }
-            }
-            if (preg_match('/^Index: /', ltrim($line))) {
-                $line = PHP_EOL . $bashStyling->normal($line, 226, null, true);
             }
         }
         return $svnDiff;
