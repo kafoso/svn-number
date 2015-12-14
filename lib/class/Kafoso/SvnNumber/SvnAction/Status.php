@@ -7,7 +7,7 @@ use Kafoso\SvnNumber\SvnAction\Status\Line;
 
 class Status extends AbstractSvnAction {
     protected $svnStatus;
-    protected $statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D|S|I|X|~|R|L|E)\s+(.+)$/i';
+    protected $statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D\s+C|D|S|I|X|~|R|L|E)\s+(.+)$/i';
     protected $lines = array();
     protected $statusHints = array( // Source: http://stackoverflow.com/a/2036/1879194
         "U" => "Working file was updated",
@@ -72,6 +72,12 @@ class Status extends AbstractSvnAction {
                         $color = 40;
                         $replacedLine .= $bashStyling->bold($match[1], $color, $backgroundColor) . $padding
                             . $bashStyling->normal($filePath, $color, $backgroundColor);
+                        break;
+                    case "D C":
+                        $replacedLine .= $bashStyling->bold("D", 160, $backgroundColor)
+                            . $bashStyling->bold("C", 208, $backgroundColor)
+                            . "   "
+                            . $bashStyling->normal($filePath, 208, $backgroundColor);
                         break;
                     case "C":
                     case "!":
