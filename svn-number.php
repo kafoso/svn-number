@@ -48,11 +48,11 @@ try {
         if ($svnNumber->hasRequestedNumbers()) {
             $status = $svnNumber->getStatus();
             $allLinesInformations = $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers());
-            foreach ($allLinesInformations as $number => $lineInformation) {
+            foreach ($allLinesInformations as $number => $line) {
                 $svnNumber->exec(sprintf(
                     "svn %s %s %s",
                     $svnNumber->getAction(),
-                    $lineInformation["filePath"],
+                    $line->getFilePath(),
                     $svnNumber->getAdditionalArgsStr()
                 ));
             }
