@@ -110,12 +110,13 @@ class Status extends AbstractSvnAction {
                 }
                 $outputLines[] = $bashStyling->escape($replacedLine);
                 $fileNumber++;
-            } else if (preg_match('/\>\s+moved/', ltrim($line))) {
-                $line = str_repeat(" ", 13) . ltrim($line);
+            } else if (preg_match('/^\s+\>\s+(.+)$/', $line, $match)) {
+                $line = str_repeat(" ", 13) . "> " . $match[1];
                 $outputLines[] = $bashStyling->normal(
-                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns) + 12),
+                    str_pad(str_replace("\\", "/", $line), min(128, $maxColumns)),
                     231,
-                    $backgroundColor
+                    $backgroundColor,
+                    true
                 );
             } else {
                 $outputLines[] = $bashStyling->normal(
