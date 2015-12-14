@@ -23,8 +23,10 @@ Pointers are file indexes, added in front file references when running `svn-numb
   Use commas (without any spaces) to reference non-consecutive numbers. E.g. `2,4` = `[2,4]`. May also be combined with ranges, e.g. `2-4,7` = `[2,3,4,7]`.
 - **Colors**<br/>
 Colors are added to `svn status` and `svn diff` - i.e. when using `svn-number status` and `svn-number diff`, respectively - vastly improving readability. For details, see [Styling](#usage-styling).
-- **Fixed file paths**<br/>
-File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\bad` becomes `C:/bad/windows/is/bad`. No more backslash frustrations! Even if you dislike the pointer logic, explained above, you may now - through `svn-number status` - copy-paste the file names, and use them with your `svn` actions.
+- **Fixed file paths & escapes**<br/>
+File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\bad` becomes `C:/bad/windows/is/bad`. No more backslash frustrations!<br/>
+<br/>Additionally, file paths are escaped, meaning space characters no longer pose a problem!<br/>
+<br/>If you dislike the pointer logic (explained above), you may now - through `svn-number status` - copy-paste the file names, and use them with the standard `svn` actions.
 
 # Installation
 
