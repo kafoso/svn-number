@@ -10,7 +10,7 @@ class Status extends AbstractSvnAction {
     const COLUMN_DEFAULT_COUNT = 128;
 
     protected $svnStatus;
-    protected $statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D\s+C|D|S|I|X|~|R|L|E)\s+(.+)$/i';
+    protected $statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D\s+C|D|S|I|X|~|R|L|E|\~)\s+(.+)$/i';
     protected $lines = array();
     protected $statusHints = array( // Source: http://stackoverflow.com/a/2036/1879194
         "U" => "Working file was updated",
@@ -100,6 +100,7 @@ class Status extends AbstractSvnAction {
                             . $bashStyling->normal($filePath, static::COLOR_CODE_RED, $backgroundColor);
                         break;
                     case "E":
+                    case "G":
                     case "I":
                     case "X":
                     case "?":
@@ -108,6 +109,7 @@ class Status extends AbstractSvnAction {
                             . $bashStyling->normal($filePath, static::COLOR_CODE_GRAY_LIGHT, $backgroundColor);
                         break;
                     case "L":
+                    case "~":
                         $replacedLine .= $bashStyling->bold($match[1], static::COLOR_CODE_YELLOW, $backgroundColor)
                             . $padding
                             . $bashStyling->normal($filePath, static::COLOR_CODE_YELLOW, $backgroundColor);
