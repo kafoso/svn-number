@@ -30,9 +30,13 @@ File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\
 
 ## Screenshots
 
+### `svn-number status`
+
 ![svn-number status](https://raw.github.com/kafoso/svn-number/master/assets/images/screenshots/svn-number-status.png)
 
 Notice the alternating background coloration of even line numbers. For improved readability.
+
+### `svn-number diff 3`
 
 ![svn-number diff 3](https://raw.github.com/kafoso/svn-number/master/assets/images/screenshots/svn-number-diff-3.png)
 
