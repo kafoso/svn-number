@@ -26,4 +26,18 @@ class Command {
             implode(PHP_EOL, $output)
         ));
     }
+
+    public function getMaxTerminalLines(){
+        exec("tput lines", $output, $return);
+        if ($return === 0) {
+            if (is_array($output)) {
+                return intval($output[0]);
+            }
+            return 0;
+        }
+        throw new \RuntimeException(sprintf(
+            "Shell command error: %s",
+            implode(PHP_EOL, $output)
+        ));
+    }
 }
