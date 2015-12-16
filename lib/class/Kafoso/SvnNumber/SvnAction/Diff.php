@@ -36,13 +36,13 @@ class Diff extends AbstractSvnAction {
 
     protected function stylizeDiff($diff){
         $lineRegexToColor = array(
+            '/^(Index: .+)$/' => array(static::COLOR_CODE_YELLOW, null),
             '/^(\=+(\s*))$/' => array(static::COLOR_CODE_GRAY, null),
             '/^(\+\+\+\s+.*)$/' => array(static::COLOR_CODE_GREEN, null),
             '/^(---\s+.*)$/' => array(static::COLOR_CODE_RED, null),
             '/^(\+.*)$/' => array(static::COLOR_CODE_GREEN, null),
             '/^(-.*)$/' => array(static::COLOR_CODE_RED, null),
             '/^(@@ .+ @@).*$/' => array(static::COLOR_CODE_TEAL, null),
-            '/^(Index: .+)$/' => array(static::COLOR_CODE_YELLOW, null)
         );
         $bashStyling = new BashStyling;
         foreach ($lineRegexToColor as $regex => $colors) {
