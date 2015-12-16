@@ -28,9 +28,17 @@ File paths are converted to always use forward slashes, e.g. `C:\bad\windows\is\
 <br/>Additionally, file paths are escaped, meaning space characters no longer pose a problem!<br/>
 <br/>If you dislike the pointer logic (explained above), you may now - through `svn-number status` - copy-paste the file names, and use them with the standard `svn` actions.
 
+## Screenshots
+
+![svn-number status](https://raw.github.com/kafoso/svn-number/master/assets/images/screenshots/svn-number-status.png)
+
+Notice the alternating background coloration of even line numbers. For improved readability.
+
+![svn-number diff 3](https://raw.github.com/kafoso/svn-number/master/assets/images/screenshots/svn-number-diff-3.png)
+
 # What `svn-number` **does not** do
 
-- It doesn't modify other arguments than the [Pointers](#pointers) and the [file paths](#fixed-file-paths-escapes) (slash conversion and escaping). This means you have to apply additional arguments as needed, just as before. E.g. `svn-number revert -R my/folder` to recursively revert the folder and all of its contents.
+- It does not modify other arguments than the [Pointers](#pointers) and the [file paths](#fixed-file-paths-escapes) (slash conversion and escaping). This means you still have to apply additional arguments as needed. E.g. `svn-number revert -R my/folder` to recursively revert a folder and all of its contents.
 
 # Installation
 
