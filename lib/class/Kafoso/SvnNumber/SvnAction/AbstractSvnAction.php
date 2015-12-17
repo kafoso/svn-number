@@ -3,7 +3,7 @@ namespace Kafoso\SvnNumber\SvnAction;
 
 use Kafoso\SvnNumber;
 
-abstract class AbstractSvnAction implements AbstractSvnActionInterface {
+abstract class AbstractSvnAction {
     const COLOR_CODE_BLUE = 33;
     const COLOR_CODE_GRAY = 242;
     const COLOR_CODE_GRAY_DARK = 234;

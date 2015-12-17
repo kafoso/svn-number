@@ -2,7 +2,10 @@
 <?php
 use Kafoso\SvnNumber;
 use Kafoso\SvnNumber\Bash\Command as BashCommand;
+use Kafoso\SvnNumber\SvnAction\Diff;
+use Kafoso\SvnNumber\SvnAction\Status;
 use Kafoso\SvnNumber\SvnAction\Status\Line;
+use Kafoso\SvnNumber\SvnAction\Status\Staging;
 
 require(readlink(dirname(__FILE__)) . "/lib/bootstrap.php");
 
@@ -14,17 +17,92 @@ try {
         exit;
     }
 
-    if (in_array($svnNumber->getAction(), array("st", "status"))) {
-        $status = $svnNumber->getStatus();
-        if ($svnNumber->hasRequestedNumbers()) {
-            exit($status->getOutput($svnNumber->getRequestedNumbers()));
+    $staging = new Staging(__DIR__ . "/data/staging.txt");
+
+    function printStatus(Status $status, $forceOutputAll = false){
+        if (false === $forceOutputAll && $status->getSvnNumber()->hasRequestedNumbers()) {
+            exit($status->getOutput($status->getSvnNumber()->getRequestedNumbers()));
         } else {
             exit($status->getOutput(null));
         }
+    }
+
+    if (in_array($svnNumber->getAction(), array("commit-staged", "stage", "stage-all", "unstage", "unstage-all"))) {
+        switch ($svnNumber->getAction()) {
+            case "commit-staged":
+                $stagedFilePaths = $staging->getStagedFilePaths();
+                $status = new Status($svnNumber, $staging);
+                $commitingFilePaths = array();
+                foreach ($status->getLines() as $line) {
+                    if (in_array($line->getFilePath(), $stagedFilePaths)) {
+                        $commitingFilePaths[] = escapeshellarg($line->getFilePath());
+                    }
+                }
+                $svnNumber->exec(sprintf(
+                    "svn commit %s %s",
+                    implode(" ", $commitingFilePaths),
+                    $svnNumber->getAdditionalArgsStr()
+                ));
+                $staging->clear();
+                $status = new Status($svnNumber, $staging);
+                exit(printStatus($status, true));
+            case "stage":
+                if ($svnNumber->hasRequestedNumbers()) {
+                    $status = new Status($svnNumber, $staging);
+                    $lines = array_intersect_key(
+                        $status->getLines(),
+                        array_flip($svnNumber->getRequestedNumbers())
+                    );
+                    foreach ($lines as $line) {
+                        echo "Staged file: " . $line->getFilePath() . PHP_EOL;
+                        $staging->addLine($line);
+                    }
+                    $staging->save();
+                    exit(printStatus($status, true));
+                } else {
+                    throw new \InvalidArgumentException("Command 'svn-number stage #' requires at least one number");
+                }
+                break;
+            case "stage-all":
+                $status = new Status($svnNumber, $staging);
+                $staging->clear();
+                foreach ($status->getLines() as $line) {
+                    echo "Staged file: " . $line->getFilePath() . PHP_EOL;
+                    $staging->addLine($line);
+                }
+                $staging->save();
+                exit(printStatus($status));
+            case "unstage":
+                if ($svnNumber->hasRequestedNumbers()) {
+                    $status = new Status($svnNumber, $staging);
+                    $lines = array_intersect_key(
+                        $status->getLines(),
+                        array_flip($svnNumber->getRequestedNumbers())
+                    );
+                    foreach ($lines as $line) {
+                        echo "Unstaged file: " . $line->getFilePath() . PHP_EOL;
+                        $staging->removeLine($line);
+                    }
+                    $staging->save();
+                    exit(printStatus($status, true));
+                } else {
+                    throw new \InvalidArgumentException("Command 'svn-number unstage #' requires at least one number");
+                }
+                break;
+            case "unstage-all":
+                $staging->clear();
+                $staging->save();
+                echo "Unstaged all files." . PHP_EOL;
+                $status = new Status($svnNumber, $staging);
+                exit(printStatus($status));
+        }
+    } else if (in_array($svnNumber->getAction(), array("st", "status"))) {
+        $status = new Status($svnNumber, $staging);
+        printStatus($status);
     } else if (in_array($svnNumber->getAction(), array("di", "diff"))) {
-        $diff = $svnNumber->getDiff();
+        $diff = new Diff($svnNumber);
         if ($svnNumber->hasRequestedNumbers()) {
-            $status = $svnNumber->getStatus();
+            $status = new Status($svnNumber, $staging);
             $allLinesInformation = $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers());
             $filePaths = array_map(function(Line $line){
                 return $line->getFilePath();
@@ -42,7 +120,7 @@ try {
          *      # svn commit foo.txt bar.txt -m "Two files committed"
          */
         if ($svnNumber->hasRequestedNumbers()) {
-            $status = $svnNumber->getStatus();
+            $status = new Status($svnNumber, $staging);
             $filePaths = array_map(function(Line $line){
                 return escapeshellarg($line->getFilePath());
             }, $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers()));
@@ -73,7 +151,7 @@ try {
          *      # svn revert bar.txt
          */
         if ($svnNumber->hasRequestedNumbers()) {
-            $status = $svnNumber->getStatus();
+            $status = new Status($svnNumber, $staging);
             $allLinesInformations = $status->getLineInformationFromFileNumbers($svnNumber->getRequestedNumbers());
             foreach ($allLinesInformations as $number => $line) {
                 $svnNumber->exec(sprintf(

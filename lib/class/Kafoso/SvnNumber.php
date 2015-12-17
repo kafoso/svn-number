@@ -2,8 +2,6 @@
 namespace Kafoso;
 
 use Kafoso\SvnNumber\Bash\Command as BashCommand;
-use Kafoso\SvnNumber\SvnAction\Diff;
-use Kafoso\SvnNumber\SvnAction\Status;
 use Kafoso\SvnNumber\Argument\NumberNegotiator;
 
 class SvnNumber {
@@ -12,8 +10,6 @@ class SvnNumber {
     protected $requestedNumbers = array();
     protected $action = null;
     protected $additionalArgs = array();
-    protected $diff;
-    protected $status;
 
     public function __construct(array $args, BashCommand $bashCommand){
         $this->bashCommand = $bashCommand;
@@ -67,22 +63,8 @@ class SvnNumber {
         return $this->bashCommand;
     }
 
-    public function getDiff(){
-        if (!$this->diff) {
-            $this->diff = new Diff($this);
-        }
-        return $this->diff;
-    }
-
     public function getRequestedNumbers(){
         return $this->requestedNumbers;
-    }
-
-    public function getStatus(){
-        if (!$this->status) {
-            $this->status = new Status($this);
-        }
-        return $this->status;
     }
 
     public function hasAction(){

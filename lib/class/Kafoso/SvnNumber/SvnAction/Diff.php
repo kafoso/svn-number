@@ -3,7 +3,7 @@ namespace Kafoso\SvnNumber\SvnAction;
 
 use Kafoso\SvnNumber\Bash\Styling as BashStyling;
 
-class Diff extends AbstractSvnAction {
+class Diff extends AbstractSvnAction implements DiffInterface {
     public function getOutputForFilePaths(array $filePaths) {
         $diff = array();
         $filePaths = array_map(function($filePath){

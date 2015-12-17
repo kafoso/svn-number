@@ -3,6 +3,6 @@ namespace Kafoso\SvnNumber\SvnAction;
 
 use Kafoso\SvnNumber;
 
-interface AbstractSvnActionInterface {
+interface DiffInterface {
     public function __construct(SvnNumber $svnNumber);
 }

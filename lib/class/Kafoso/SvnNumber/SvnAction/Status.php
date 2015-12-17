@@ -4,12 +4,14 @@ namespace Kafoso\SvnNumber\SvnAction;
 use Kafoso\SvnNumber;
 use Kafoso\SvnNumber\Bash\Styling as BashStyling;
 use Kafoso\SvnNumber\SvnAction\Status\Line;
+use Kafoso\SvnNumber\SvnAction\Status\Staging;
 
-class Status extends AbstractSvnAction {
+class Status extends AbstractSvnAction implements StatusInterface {
     const COLUMN_INDENTATION_COUNT_FILEPATH = 12;
     const COLUMN_DEFAULT_COUNT = 128;
 
     protected $svnStatus;
+    protected $staging;
     protected $statusTypesRegex = '/^(U|G|M|C|\?|\!|A\s*\+|A|D\s+C|D|S|I|X|~|R|L|E|\~)\s+(.+)$/i';
     protected $lines = array();
     protected $statusHints = array( // Source: http://stackoverflow.com/a/2036/1879194
@@ -32,9 +34,10 @@ class Status extends AbstractSvnAction {
         "> moved" => "Item was moved"
     );
 
-    public function __construct(SvnNumber $svnNumber){
+    public function __construct(SvnNumber $svnNumber, Staging $staging){
         parent::__construct($svnNumber);
         $this->svnStatus = $svnNumber->getBashCommand()->exec("svn st");
+        $this->staging = $staging;
     }
 
     public function getOutput(array $requestedNumbers = null){
@@ -44,6 +47,11 @@ class Status extends AbstractSvnAction {
         $outputLines = array();
         $maxColumns = $this->svnNumber->getBashCommand()->getMaxTerminalColumns()
             - self::COLUMN_INDENTATION_COUNT_FILEPATH;
+        $filePathPaddingRight = min(
+            (self::COLUMN_DEFAULT_COUNT - self::COLUMN_INDENTATION_COUNT_FILEPATH),
+            $maxColumns
+        );
+        $stagedFilePaths = $this->staging->getStagedFilePaths();
         foreach ($statusLines as $line) {
             if ($match = $this->validateLine($line)) {
                 if ($requestedNumbers && false == in_array($fileNumber, $requestedNumbers)) {
@@ -51,13 +59,18 @@ class Status extends AbstractSvnAction {
                     $fileNumber++;
                     continue;
                 }
+                $filePath = str_pad(str_replace("\\", "/", $match[2]), $filePathPaddingRight);
                 $backgroundColor = null;
                 if ($fileNumber%2 == 0) {
                     $backgroundColor = static::COLOR_CODE_GRAY_DARK;
                 }
                 $line = trim($line);
+                $stagedIndicator = " ";
+                if (in_array(trim($filePath), $stagedFilePaths)) {
+                    $stagedIndicator = $bashStyling->normal("$", static::COLOR_CODE_GREEN);
+                }
                 $replacedLine = $bashStyling->bold(
-                    " " . str_pad($fileNumber, 4, " ", STR_PAD_LEFT) . "  ",
+                    $stagedIndicator . str_pad($fileNumber, 4, " ", STR_PAD_LEFT) . "  ",
                     null,
                     $backgroundColor
                 );
@@ -67,11 +80,6 @@ class Status extends AbstractSvnAction {
                     $backgroundColor,
                     true
                 );
-                $filePathPaddingRight = min(
-                    (self::COLUMN_DEFAULT_COUNT - self::COLUMN_INDENTATION_COUNT_FILEPATH),
-                    $maxColumns
-                );
-                $filePath = str_pad(str_replace("\\", "/", $match[2]), $filePathPaddingRight);
                 switch (preg_replace('/\s+/', ' ', strtoupper($match[1]))) {
                     case "A +":
                         $match[1] = "A+";
@@ -150,7 +158,8 @@ class Status extends AbstractSvnAction {
             array_unshift($outputLines, "");
             $outputLines[] = "";
         }
-        return implode(PHP_EOL, $outputLines);
+        $output = implode(PHP_EOL, $outputLines);
+        return $output;
     }
 
     public function getLines(){
@@ -188,6 +197,10 @@ class Status extends AbstractSvnAction {
 
     public function getStatusHints(){
         return $this->statusHints;
+    }
+
+    public function getSvnNumber(){
+        return $this->svnNumber;
     }
 
     public function getSvnStatus(){
