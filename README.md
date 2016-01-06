@@ -1,10 +1,6 @@
 svn-number
 ==================================
 
-**WORK IN PROGRESS**
-
--------------------------
-
 Subversion (SVN) management in terminal made easy.
 
 -------------------------
