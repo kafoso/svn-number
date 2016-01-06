@@ -43,7 +43,7 @@ try {
                     implode(" ", $commitingFilePaths),
                     $svnNumber->getAdditionalArgsStr()
                 ));
-                $staging->clear();
+                $staging->clear()->save();
                 $status = new Status($svnNumber, $staging);
                 exit(printStatus($status, true));
             case "stage":
@@ -90,8 +90,7 @@ try {
                 }
                 break;
             case "unstage-all":
-                $staging->clear();
-                $staging->save();
+                $staging->clear()->save();
                 echo "Unstaged all files." . PHP_EOL;
                 $status = new Status($svnNumber, $staging);
                 exit(printStatus($status));
