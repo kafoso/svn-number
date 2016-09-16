@@ -46,7 +46,7 @@ class Diff extends AbstractSvnAction implements DiffInterface {
         );
         $bashStyling = new BashStyling;
         foreach ($lineRegexToColor as $regex => $colors) {
-            if (preg_match($regex, ltrim($diff), $match)) {
+            if (preg_match($regex, $diff, $match)) {
                 list($foreground, $background) = $colors;
                 $count = 1;
                 $diff = str_replace(
