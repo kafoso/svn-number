@@ -36,10 +36,10 @@ class Diff extends AbstractSvnAction implements DiffInterface {
 
     protected function stylizeDiff($diff){
         $lineRegexToColor = array(
-            '/^(Index: .+)$/' => array(static::COLOR_CODE_YELLOW, null),
+            '/^(\s*Index\: .+)$/' => array(static::COLOR_CODE_YELLOW, null),
             '/^(\=+(\s*))$/' => array(static::COLOR_CODE_GRAY, null),
-            '/^(\+\+\+\s+.*)$/' => array(static::COLOR_CODE_WHITE, null),
-            '/^(---\s+.*)$/' => array(static::COLOR_CODE_WHITE, null),
+            '/^(\+{3}\s+.*)$/' => array(static::COLOR_CODE_WHITE, null),
+            '/^(\-{3}\s+.*)$/' => array(static::COLOR_CODE_WHITE, null),
             '/^(\+.*)$/' => array(static::COLOR_CODE_GREEN, null),
             '/^(-.*)$/' => array(static::COLOR_CODE_RED, null),
             '/^(@@ .+ @@).*$/' => array(static::COLOR_CODE_TEAL, null),
